@@ -53,7 +53,6 @@ so it will only import when there is new data to be imported.
 (Note, if you want continuous integration running, you can create an event for the "runContinuousIntegration() method that runs every minute).
 
 ```javascript
->>>>>>> 84e52651f1d866a270ecd7804783a015d144c324
     function onOpen() {
       var ui = SpreadsheetApp.getUi();
           ui.createMenu('J. Arthur Trading')
