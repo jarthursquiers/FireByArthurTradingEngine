@@ -52,11 +52,7 @@ so it will only import when there is new data to be imported.
 **Here are some other functions you can add to the script file attached to your Google Sheet:
 (Note, if you want continuous integration running, you can create an event for the "runContinuousIntegration() method that runs every minute).
 
-<<<<<<< HEAD
-
-=======
 ```javascript
->>>>>>> 84e52651f1d866a270ecd7804783a015d144c324
     function onOpen() {
       var ui = SpreadsheetApp.getUi();
           ui.createMenu('J. Arthur Trading')
