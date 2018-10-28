@@ -1,2 +1,4 @@
 node_modules/
 .clasp.json
+appsscript.json
+.claspignore
