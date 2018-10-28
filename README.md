@@ -30,9 +30,9 @@ It is written in Typescript to allow for an object oriented structure, and depen
 - Back on the script editor that is attached to your new Google Sheet, enter a call to the run() method on the script project.
     Like this:
 
-function myFunction() {
-   FireByArthurTradingEngine.run();
-}
+    function myFunction() {
+        FireByArthurTradingEngine.run();
+    }
 
 
 -In the function drop down, select your function in click run (You will have to enable permissions the first time).
@@ -51,54 +51,54 @@ so it will only import when there is new data to be imported.
 (Note, if you want continuous integration running, you can create an event for the "runContinuousIntegration() method that runs every minute).
 
 
-function onOpen() {
-  var ui = SpreadsheetApp.getUi();
-  ui.createMenu('J. Arthur Trading')
-      .addItem('Run Test Suite','runTestSuite')
-      .addToUi();
+   function onOpen() {
+      var ui = SpreadsheetApp.getUi();
+          ui.createMenu('J. Arthur Trading')
+          .addItem('Run Test Suite','runTestSuite')
+          .addToUi();
 
-}
-
-function runTestSuite() {
-  FireByArthurTrading.googleSheetsTestSuite();
-}
-
-function runContinuousIntegration() {
-    if (testScriptChanged()) {
-        FireByArthurTrading.runCIProcess();
     }
-}
 
-function createTestingTriggers() {
-    ScriptApp.newTrigger('runContinuousIntegration')
-      .timeBased()
-      .everyMinutes(1)
-      .create();
-}
+    function runTestSuite() {
+        FireByArthurTrading.googleSheetsTestSuite();
+    }
+
+    function runContinuousIntegration() {
+        if (testScriptChanged()) {
+            FireByArthurTrading.runCIProcess();
+        }
+    }
+
+    function createTestingTriggers() {
+        ScriptApp.newTrigger('runContinuousIntegration')
+           .timeBased()
+           .everyMinutes(1)
+           .create();
+    }
 
 
 
-function testScriptChanged() {
-   var file = DriveApp.getFilesByName("FireByArthurTrading").next();
-   var fileDate = file.getLastUpdated();
-   Logger.log(fileDate);
+    function testScriptChanged() {
+        var file = DriveApp.getFilesByName("FireByArthurTrading").next();
+        var fileDate = file.getLastUpdated();
+        Logger.log(fileDate);
    
-   var scriptUpdatedStr = PropertiesService.getScriptProperties().getProperty("SCRIPT_LAST_UPDATED");
-   PropertiesService.getScriptProperties().setProperty("SCRIPT_LAST_UPDATED", fileDate+"");
+        var scriptUpdatedStr = PropertiesService.getScriptProperties().getProperty("SCRIPT_LAST_UPDATED");
+        PropertiesService.getScriptProperties().setProperty("SCRIPT_LAST_UPDATED", fileDate+"");
    
-   if (scriptUpdatedStr == null) {
-       return true;
-   }
+        if (scriptUpdatedStr == null) {
+            return true;
+        }
    
-   var scriptUpdatedDate = new Date(scriptUpdatedStr);
-   if (FireByArthurTrading.compareDates(fileDate, scriptUpdatedDate) == 1) {
-       return true;
-   }
-   else {
-       return false;
-   }
+        var scriptUpdatedDate = new Date(scriptUpdatedStr);
+        if (FireByArthurTrading.compareDates(fileDate, scriptUpdatedDate) == 1) {
+            return true;
+        }
+        else {
+            return false;
+        }
  
-}
+    }
 
 ## Disclaimer
 
