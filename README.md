@@ -49,7 +49,7 @@ so it will only import when there is new data to be imported.
 
 
 
-**Here are some other functions you can add to the script file attached to your Google Sheet:
+** Here are some other functions you can add to the script file attached to your Google Sheet:
 (Note, if you want continuous integration running, you can create an event for the "runContinuousIntegration() method that runs every minute).
 
 ```javascript
