@@ -29,13 +29,15 @@ It is written in Typescript to allow for an object oriented structure, and depen
 
 - Back on the script editor that is attached to your new Google Sheet, enter a call to the run() method on the script project.
     Like this:
-
+    
+```javascript
     function myFunction() {
         FireByArthurTradingEngine.run();
     }
+```
 
 
--In the function drop down, select your function in click run (You will have to enable permissions the first time).
+- In the function drop down, select your function in click run (You will have to enable permissions the first time).
     (Assuming you want a Tastyworks csv portfolio file to be imported, make sure you have a csv file somewhere in your
     Google drive named "p.csv" )
     THE FOLLOWING COLUMNS MUST BE IN THE PORTFOLIO CSV FROM TASTYWORKS: Quantity, Cost, / Delta, Theta, NetLiq, Call/Put, Strike Price, DTE
@@ -50,7 +52,11 @@ so it will only import when there is new data to be imported.
 **Here are some other functions you can add to the script file attached to your Google Sheet:
 (Note, if you want continuous integration running, you can create an event for the "runContinuousIntegration() method that runs every minute).
 
+<<<<<<< HEAD
 
+=======
+```javascript
+>>>>>>> 84e52651f1d866a270ecd7804783a015d144c324
     function onOpen() {
       var ui = SpreadsheetApp.getUi();
           ui.createMenu('J. Arthur Trading')
@@ -98,7 +104,8 @@ so it will only import when there is new data to be imported.
             return false;
         }
  
-    }
+    }  
+```
 
 ## Disclaimer
 
