@@ -1,4 +1,9 @@
-Getting the FireByArthurTradingEngine up and running.
+# The Fire By Arthur Trading Engine
+This is designed as a Google Sheets add on for options traders that provides sophisticated portfolio alerts, portfolio statistics, and Apple Watch face integration.
+
+It is written in Typescript to allow for an object oriented structure, and depends on "clasp" for deploying the app to Google Apps.
+
+## Getting the FireByArthurTradingEngine up and running.
 
 - Install Node.js, Typescript, and Visual Studio Code
 - Install typescript module: npm install typescript --save
@@ -8,7 +13,7 @@ Getting the FireByArthurTradingEngine up and running.
 - With the .vscode/launch file provided, you should be able to hit ctrl+F5 in Visual Studio Code and the unit tests will run
         --Note: It it not necessary to ever transpile the Typescript code with tsc.
 
-To deploy to Google Sheets:
+## To deploy to Google Sheets:
 
 -Install clasp globally: npm install @google/clasp -g
 -Run clasp to create a new app script project in your google account (I suggest calling the script "FireByArthurTradingEngine"): clasp create [scriptTitle] 
@@ -94,6 +99,10 @@ function testScriptChanged() {
    }
  
 }
+
+## Disclaimer
+
+THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM “AS IS” WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
 
 
 
