@@ -5,7 +5,7 @@ It is written in Typescript to allow for an object oriented structure, and depen
 
 ## Getting the FireByArthurTradingEngine up and running.
 
-- Install Node.js, Typescript, and Visual Studio Code
+- Install Node.js and Visual Studio Code
 - Install typescript module: npm install typescript --save
 - Install ts-node (for running the unit tests locally): npm install ts-node --save
 - Install google app script types: npm install @types/google-apps-script --save
