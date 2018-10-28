@@ -3,6 +3,8 @@ This is designed as a Google Sheets add on for options traders that provides sop
 
 It is written in Typescript to allow for an object oriented structure, and depends on "clasp" for deploying the app to Google Apps.
 
+The official site for this project is on [FireByArthur.com](https://firebyarthur.com/fire-by-arthur-trading-engine/)
+
 ## Getting the FireByArthurTradingEngine up and running.
 
 - Install Node.js and Visual Studio Code
