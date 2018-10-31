@@ -64,12 +64,12 @@ so it will only import when there is new data to be imported.
     }
 
     function runTestSuite() {
-        FireByArthurTrading.googleSheetsTestSuite();
+        FireByArthurTradingEngine.googleSheetsTestSuite();
     }
 
     function runContinuousIntegration() {
         if (testScriptChanged()) {
-            FireByArthurTrading.runCIProcess();
+            FireByArthurTradingEngine.runCIProcess();
         }
     }
 

@@ -18,9 +18,9 @@ import { TotalsSheet } from '../sheets/totals-sheet';
 
 export function run() {
     var ui = SpreadsheetApp.getUi();
-    ui.createMenu('Fire By Arthur Trading')
-      .addItem('Run Engine','FireByArthurTrading.run')
-      .addItem('Load CSV Data','FireByArthurTrading.loadCSVData')
+    ui.createMenu('Fire By Arthur Trading Engine')
+      .addItem('Run','FireByArthurTradingEngine.run')
+      .addItem('Load CSV','FireByArthurTradingEngine.loadCSVData')
       .addToUi();
 
       //setting it for Google Apps logging
@@ -56,6 +56,13 @@ export function run() {
         let totalsSheet: TotalsSheet = new TotalsSheet();
         totalsSheet.write(portfolio);
     });
+
+    TastyworksHub.csvParseFunction = (csvString, delim) => {
+        if (JLog.isDebug()) JLog.debug("Parsing the csvString with Utilities.parseCSV");
+        let dataArray = Utilities.parseCsv(csvString);
+        
+        return dataArray;
+    }
 
 
     let taskManager = new TaskManager();

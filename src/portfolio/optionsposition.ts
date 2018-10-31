@@ -45,6 +45,8 @@ export class OptionsPosition {
         let profitAmount = this.getPositionPL();
         if (JLog.isDebug()) JLog.debug(`${this.symbol} profitAmount: ${profitAmount} | originalCredit ${this.originalCredit}`);
         let percentProfit = Math.round(profitAmount / this.originalCredit * 100);
+        //If the original credit is negative, this was a debit trade. Profit percent would need to swap the percent
+        if (this.originalCredit <= 0) percentProfit = percentProfit * -1;
         return percentProfit;
     }
 

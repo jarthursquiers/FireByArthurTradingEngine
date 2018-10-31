@@ -47,6 +47,12 @@ export class Portfolio {
         }
     }
 
+    clearReadInNetLiqs() {
+        for (let position of this.getPositions()) {
+            position.readInPositionNetLiq = 0;
+        }
+    }
+
     setPositionsNew(positionsNew : boolean) {
         for (let position of this.getPositions()) {
             position.newPosition = positionsNew;

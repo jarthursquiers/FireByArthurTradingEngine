@@ -215,7 +215,7 @@ export class OpenPositionsSheet {
                     sheet.getRange(lastRow, OpenPositionsColumn.NetLiq).setFontWeight("bold").setValue(position.getOpenNetLiq());
                     sheet.getRange(lastRow, OpenPositionsColumn.ProfitLoss).setFormula("=E" + lastRow + "+F" + lastRow);
                     sheet.getRange(lastRow, OpenPositionsColumn.ProfitLossPercent).setFontWeight("bold").setNumberFormat("#.##%");
-                    sheet.getRange(lastRow, OpenPositionsColumn.ProfitLossPercent).setFormula("=G" + lastRow + "/D" + lastRow);
+                    sheet.getRange(lastRow, OpenPositionsColumn.ProfitLossPercent).setFormula(`=if(D${lastRow} > 0, G${lastRow}/D${lastRow}, (G${lastRow}/D${lastRow}) * -1)`);
                     sheet.getRange(lastRow, OpenPositionsColumn.BiggestDelta).setValue(position.getBiggestDelta());
                     sheet.getRange(lastRow, OpenPositionsColumn.Quantity).setValue(position.getQuantity());
                     sheet.getRange(lastRow, OpenPositionsColumn.TargetNetLiq).setFormula("=((D" + lastRow + "/2)-E" + lastRow + ")*-1");
