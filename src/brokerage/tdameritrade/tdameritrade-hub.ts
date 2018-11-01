@@ -44,7 +44,12 @@ export class TDAmeritradeHub implements IDataLoader {
     }
 
     marketOpen(): boolean {
-        return isMarketOpen();
+        try {
+            return isMarketOpen();
+        } catch (e) {
+            JLog.error(e);
+            return false;
+        }
     }
 
     private getValueFromJSON(jsonString, name) {

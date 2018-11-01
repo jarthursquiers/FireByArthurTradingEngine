@@ -46,9 +46,9 @@ export class LoadQuotesTask implements ITask {
         if (engineConfig.getConfig(EngineConfigProperty.APIBroker) === Constants.TDAMERITRADE_BROKERAGE) {
             let tdHub : TDAmeritradeHub = new TDAmeritradeHub();
             //Check is market is open
-        /*    if (!tdHub.marketOpen()) {
+            if (!tdHub.marketOpen()) {
                 return false;
-            }*/
+            }
 
             brokerHub = tdHub;
         }

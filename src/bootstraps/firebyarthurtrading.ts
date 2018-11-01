@@ -14,6 +14,7 @@ import { TradeAlert } from '../alerts/trade-alert';
 import { NotificationSender } from '../alerts/notification-sender';
 import { JLog, JLogLevel } from '../utils/jlog';
 import { TotalsSheet } from '../sheets/totals-sheet';
+import { tdaLogin, authCallback } from '../brokerage/tdameritrade/tda-api';
 
 export function onOpen() {
     var ui = SpreadsheetApp.getUi();
@@ -129,4 +130,18 @@ export function loadCSVData() {
     dataLoader.loadCSVData(portfolio);
     Logger.log("Loaded CSV data into portfolio");
     tOpenSheet.write(portfolio);
+}
+
+export function tdAmeritradeLogin() {
+    let engineConfigSheet : EngineConfigSheet = new EngineConfigSheet();
+    let engineConfig : EngineConfig = EngineConfig.instance();
+    engineConfigSheet.read(engineConfig);
+    tdaLogin();
+}
+
+export function tdaCallback(request) {
+    let engineConfigSheet : EngineConfigSheet = new EngineConfigSheet();
+    let engineConfig : EngineConfig = EngineConfig.instance();
+    engineConfigSheet.read(engineConfig);
+    return authCallback(request);
 }

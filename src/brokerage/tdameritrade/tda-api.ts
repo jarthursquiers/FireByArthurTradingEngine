@@ -101,7 +101,7 @@ function testTDA() {
            JLog.debug(responseString);
 }
 
-function tdaLogin() {
+export function tdaLogin() {
     showSidebar();  
 }
 
@@ -110,7 +110,7 @@ function tdaLogout() {
     service.reset();
 }
 
-function showSidebar() {
+export function showSidebar() {
     var tdaService = getTDAService();
    // if (!tdaService.hasAccess()) {
       var authorizationUrl = tdaService.getAuthorizationUrl();
@@ -174,7 +174,7 @@ function showSidebar() {
            .setParam('client_id',tdaClientId);
   }
 
-  function authCallback(request) {
+  export function authCallback(request) {
     var tdaService = getTDAService();
     var isAuthorized = tdaService.handleCallback(request);
     Logger.log(request);
