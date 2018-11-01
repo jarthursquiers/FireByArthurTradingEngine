@@ -15,13 +15,16 @@ import { NotificationSender } from '../alerts/notification-sender';
 import { JLog, JLogLevel } from '../utils/jlog';
 import { TotalsSheet } from '../sheets/totals-sheet';
 
-
-export function run() {
+export function onOpen() {
     var ui = SpreadsheetApp.getUi();
     ui.createMenu('Fire By Arthur Trading Engine')
       .addItem('Run','FireByArthurTradingEngine.run')
       .addItem('Load CSV','FireByArthurTradingEngine.loadCSVData')
       .addToUi();
+}
+
+
+export function run() {
 
       //setting it for Google Apps logging
     JLog.setLoggingMethod((text) => {console.log(text)});

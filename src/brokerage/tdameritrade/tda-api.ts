@@ -1044,7 +1044,7 @@ lockable_ = function(func) {
    if (jsonValue = this.properties_.getProperty(prefixedKey)) {
      if (this.cache_) {
        this.cache_.put(prefixedKey,
-           jsonValue, OAuth2.CACHE_EXPIRATION_TIME_SECONDS);
+           jsonValue, 21600);
      }
      value = JSON.parse(jsonValue);
      this.memory_[key] = value;
@@ -1075,7 +1075,7 @@ lockable_ = function(func) {
    this.properties_.setProperty(prefixedKey, jsonValue);
    if (this.cache_) {
      this.cache_.put(prefixedKey, jsonValue,
-         this.CACHE_EXPIRATION_TIME_SECONDS);
+      21600);
    }
    this.memory_[key] = value;
  };

@@ -53,7 +53,12 @@ export class PushoverTask implements ITask {
     
 
         if (JLog.isDebug()) JLog.debug(`sending pushover full-> subtext: ${subtext}, maintext ${maintext}`);
-        sendPushoverFull("Portfolio",subtext, "10", maintext);
+        try {
+            sendPushoverFull("Portfolio",subtext, "10", maintext);
+        }
+        catch (e) {
+            JLog.error(e);
+        }
 
         taskDidStuff = true;
         if (JLog.isDebug()) JLog.debug("PushoverTask.run(): End");
