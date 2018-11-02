@@ -39,11 +39,24 @@ export class PushoverTask implements ITask {
         let engineConfig = EngineConfig.instance();
         engineState.setState(EngineStateProperty.PushoverTaskLastRan, new Date());
 
-        //Check to see if the data is changed, otherwise this isn't worth doing
-        if (engineState.getDataChangedType() === DataChangedType.NotChanged) {
-            if (JLog.isDebug()) JLog.debug("DataChangedType is NotChanged, so we aren't pushing anything");
+        let datePushoverSent : Date;
+        let dateDataChanged : Date;
+        try {
+            dateDataChanged = new Date(engineState.getState(EngineStateProperty.DataUpdatedDate));
+            if (JLog.isDebug()) JLog.debug("Got date data last changed: "+dateDataChanged);
+            datePushoverSent = new Date(engineState.getState(EngineStateProperty.PushoverSentDate));
+            if (JLog.isDebug()) JLog.debug("Got date pushover last sent: "+datePushoverSent);
+        }
+        catch (e) {
+            JLog.error(e);
+        }
+        
+    
+        if (dateDataChanged == null || (datePushoverSent != null && datePushoverSent.getTime() > dateDataChanged.getTime()) ) {
+            if (JLog.isDebug()) JLog.debug("Data hasn't changed since last pushover sent, so we aren't pushing anything");
             return false;
         }
+        
 
     
         let maintext = `OPL: ${Portfolio.instance().getOpenProfitAndLoss()}`;
@@ -55,6 +68,7 @@ export class PushoverTask implements ITask {
         if (JLog.isDebug()) JLog.debug(`sending pushover full-> subtext: ${subtext}, maintext ${maintext}`);
         try {
             sendPushoverFull("Portfolio",subtext, "10", maintext);
+            engineState.setState(EngineStateProperty.PushoverSentDate, new Date());
         }
         catch (e) {
             JLog.error(e);
