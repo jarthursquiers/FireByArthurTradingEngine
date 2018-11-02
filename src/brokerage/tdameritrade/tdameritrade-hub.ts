@@ -2,6 +2,7 @@ import { IDataLoader } from "../data-loader-interface";
 import { Portfolio } from '../../portfolio/portfolio';
 import { getTDAOptionsQuote, isMarketOpen } from "./tda-api";
 import { JLog } from '../../utils/jlog';
+import { EngineState, EngineStateProperty } from '../../engine/engine-state';
 
 export class TDAmeritradeHub implements IDataLoader {
 
@@ -24,10 +25,18 @@ export class TDAmeritradeHub implements IDataLoader {
                 try {
                     quoteStr = getTDAOptionsQuote(option.symbol, option.callOrPut.toUpperCase(), `${option.strikePrice}`, option.expirationDate);
                     if (JLog.isDebug()) JLog.debug(`TDAmeritradeHub.loadAPIQuoteData(): The quote returned from API is: ${quoteStr}`);
-                    let jsonResult = JSON.parse(quoteStr);
+                  
                 } catch (e) {
                     JLog.error(e);
                     return;
+                }
+
+                var isDelayed = this.getValueFromJSON(quoteStr, "isDelayed");
+                if (isDelayed === "false") {
+                   EngineState.instance().setState(EngineStateProperty.QuotesDelayed,"false");
+                }
+                else {
+                  EngineState.instance().setState(EngineStateProperty.QuotesDelayed,"true");
                 }
 
                 let deltaStr = this.getValueFromJSON(quoteStr, "delta");
@@ -45,7 +54,8 @@ export class TDAmeritradeHub implements IDataLoader {
 
     marketOpen(): boolean {
         try {
-            return isMarketOpen();
+           return isMarketOpen();
+       //   return true;
         } catch (e) {
             JLog.error(e);
             return false;

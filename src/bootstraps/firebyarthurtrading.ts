@@ -14,7 +14,7 @@ import { TradeAlert } from '../alerts/trade-alert';
 import { NotificationSender } from '../alerts/notification-sender';
 import { JLog, JLogLevel } from '../utils/jlog';
 import { TotalsSheet } from '../sheets/totals-sheet';
-import { tdaLogin, authCallback } from '../brokerage/tdameritrade/tda-api';
+import { tdaLogin, authCallback, testTDAmeritrade } from '../brokerage/tdameritrade/tda-api';
 
 export function onOpen() {
     var ui = SpreadsheetApp.getUi();
@@ -133,13 +133,26 @@ export function loadCSVData() {
 }
 
 export function tdAmeritradeLogin() {
+       //setting it for Google Apps logging
+    JLog.setLoggingMethod((text) => {console.log(text)});
+    JLog.info("Starting the J. Arthur Trading Engine.");
     let engineConfigSheet : EngineConfigSheet = new EngineConfigSheet();
     let engineConfig : EngineConfig = EngineConfig.instance();
     engineConfigSheet.read(engineConfig);
     tdaLogin();
 }
 
+export function tdAmeritradeTest() {
+    let engineConfigSheet : EngineConfigSheet = new EngineConfigSheet();
+    let engineConfig : EngineConfig = EngineConfig.instance();
+    engineConfigSheet.read(engineConfig);
+    testTDAmeritrade();
+}
+
 export function tdaCallback(request) {
+       //setting it for Google Apps logging
+    JLog.setLoggingMethod((text) => {console.log(text)});
+    JLog.info("Starting the J. Arthur Trading Engine for tdaCallback.");
     let engineConfigSheet : EngineConfigSheet = new EngineConfigSheet();
     let engineConfig : EngineConfig = EngineConfig.instance();
     engineConfigSheet.read(engineConfig);

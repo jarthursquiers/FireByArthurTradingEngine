@@ -31,6 +31,8 @@ export class EngineState {
     }
 
     setDataChangedType(changedType : DataChangedType) {
+        if (changedType === DataChangedType.AllDataChanged || changedType == DataChangedType.EquityOnly)
+            this.setState(EngineStateProperty.DataUpdatedDate, new Date());
         this.dataChangedType = changedType;
     }
 
@@ -79,5 +81,8 @@ export enum EngineStateProperty {
     DateLastCSVLoad,
     CSVTaskLastRan,
     QuoteAPITaskLastRan,
-    PushoverTaskLastRan
+    PushoverTaskLastRan,
+    MarketOpen,
+    QuotesDelayed,
+    DataUpdatedDate
 }
