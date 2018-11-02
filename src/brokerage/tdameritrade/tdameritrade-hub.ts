@@ -32,7 +32,8 @@ export class TDAmeritradeHub implements IDataLoader {
                 }
 
                 var isDelayed = this.getValueFromJSON(quoteStr, "isDelayed");
-                if (isDelayed === "false") {
+                if (JLog.isDebug()) JLog.debug(`The value of isDelayed from the TDA result is ${isDelayed}`);
+                if (isDelayed == false) {
                    EngineState.instance().setState(EngineStateProperty.QuotesDelayed,"false");
                 }
                 else {
