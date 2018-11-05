@@ -7,7 +7,7 @@ import { googleSheetsTestSuite } from './testing-engine';
 import { TradingEngine } from '../engine/trading-engine';
 import { TaskManager } from '../tasks/task-manager';
 import { EngineStateSheet } from '../sheets/engine-state-sheet';
-import { EngineState, DataChangedType } from '../engine/engine-state';
+import { EngineState, DataChangedType, EngineStateProperty } from '../engine/engine-state';
 import { EngineConfigSheet } from '../sheets/engine-config-sheet';
 import { EngineConfig, EngineConfigProperty } from '../engine/engine-config';
 import { TradeAlert } from '../alerts/trade-alert';
@@ -74,7 +74,7 @@ export function run() {
     taskManager.runTasks();
 
     //If there were tasks that ran and changed data)
-    if (taskManager.getTaskRunCount() > 0) {  
+    if (EngineState.instance().getDataChangedType() !== DataChangedType.NotChanged) {  
         //Data was updated in the portfolio, so persist it:
         Portfolio.instance().persist();
 

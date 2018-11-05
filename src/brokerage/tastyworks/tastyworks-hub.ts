@@ -55,7 +55,9 @@ export class TastyworksHub implements IDataLoader {
             wOption.strikePrice = parseFloat(dataArray[i][headerArray.indexOf("Strike Price")].replace(",",""));
             wOption.dte = parseInt(dataArray[i][headerArray.indexOf("DTE")].split('d')[0]);
 
-            if (JLog.isDebug()) JLog.debug(`Adding read csv TW opton with symbol ${wOption.symbol} with netliq of ${wOption.netLiq} and a Cost of ${wOption.cost}`);
+            if (JLog.isDebug()) {
+                JLog.debug(`Adding read csv TW opton with symbol ${wOption.symbol} with netliq of ${wOption.netLiq}, DTE of ${wOption.dte} and a Cost of ${wOption.cost}`);
+            }
             aPortfolio.addOption(wOption);
         }
 

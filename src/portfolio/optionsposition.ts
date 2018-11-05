@@ -81,11 +81,14 @@ export class OptionsPosition {
     getDTE(): number {
 
         let wDTE: number = 0;
+        if (JLog.isDebug()) JLog.debug(`Option count when getDTE-called: ${this.options.length}`);
         for (let option of this.options) {
             if (option.dte < wDTE || wDTE === 0) {
                 wDTE = option.dte;
             }
         }
+
+        if (JLog.isDebug()) JLog.debug(`Returning optionDTE of ${wDTE} for ${this.symbol}`);
 
         return wDTE;
     }

@@ -44,7 +44,11 @@ export class TDAmeritradeHub implements IDataLoader {
                 let lastPrice = this.getValueFromJSON(quoteStr, "mark");
                 let daysToExpiration = this.getValueFromJSONOccurance(quoteStr, "daysToExpiration", 2);
 
+                if (JLog.isDebug()) JLog.debug(`daysToExpiration-read from tdameritrade quote was ${daysToExpiration} for ${option.symbol}`);
+
                 option.dte = parseInt(daysToExpiration);
+
+                if (JLog.isDebug()) JLog.debug(`dte-set-on-option is: ${option.dte}`);
                 option.netLiq = option.quantity * Number(lastPrice) * 100;
                 option.deltaPerQty = Math.round(Math.abs(parseFloat(deltaStr)) * 100);
 
