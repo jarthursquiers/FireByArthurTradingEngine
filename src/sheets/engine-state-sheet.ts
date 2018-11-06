@@ -49,6 +49,12 @@ export class EngineStateSheet {
                 spreadsheetContainsHash[`${tmpName}`] = stateVal;
                 if (JLog.isDebug()) JLog.debug(`Wrote the state to the sheet: ${tmpName} = ${stateVal}`);
             }
+            else {
+                //If this state is no longer in the engine, remove it
+                sheet.deleteRow(i);
+                //go up one row, since we deleted
+                i--;
+            }
         }
 
         //Loop through all properties and add the values that weren't already on the spreadsheet

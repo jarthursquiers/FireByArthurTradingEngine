@@ -260,7 +260,7 @@ export class OpenPositionsSheet {
                 sheet.getRange(sheet.getRange(cIndex, OpenPositionsColumn.Status).getRow(), 1, 1, sheet.getLastColumn()).moveTo(targetRange);
                 var closedDateRange = closedSheet.getRange(targetRange.getRow(), OpenPositionsColumn.ClosedDate);
                 closedDateRange.setValue(Utilities.formatDate(new Date(), "CST", "MM/dd/yyyy"));
-                closedSheet.getRange(targetRange.getRow(), OpenPositionsColumn.DaysInTrade).setFormula("=DATEDIF(R" + targetRange.getRow() + ",V" + targetRange.getRow() + ",\"D\")");
+                closedSheet.getRange(targetRange.getRow(), OpenPositionsColumn.DaysInTrade).setFormula("=DATEDIF(R" + targetRange.getRow() + ",W" + targetRange.getRow() + ",\"D\")");
 
                 sheet.deleteRow(cIndex);
                 //Since we deleted one, we need to go back one row in the loop
