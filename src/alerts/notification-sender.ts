@@ -10,7 +10,7 @@ export class NotificationSender {
         let notificationEmails : string = engineConfig.getConfig(EngineConfigProperty.NotificationEmails);
 
         for (let alert of alerts) {
-         //   MailApp.sendEmail(notificationEmails, `${alert.alertSymbol} ALERT, ${AlertType[alert.alertType]}`, alert.alertMessage);
+         MailApp.sendEmail(notificationEmails, `${alert.alertSymbol} ALERT, ${AlertType[alert.alertType]}`, alert.alertMessage);
          Logger.log("Would have sent email: "+alert.alertMessage);
         }
     }

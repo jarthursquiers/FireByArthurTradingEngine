@@ -41,36 +41,43 @@ export class TradingEngine {
         tAlertConfig = new AlertConfig(
             AlertType.BiggestDelta, Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple1)));
         tAlertConfig.maxValue = Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple2));
+        tAlertConfig.expectedAdjustmentCount = 1;
         this.alertConfigs.push(tAlertConfig);
 
         tAlertConfig = new AlertConfig(
             AlertType.BiggestDelta, Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple2)));
         tAlertConfig.maxValue = Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple3));
+        tAlertConfig.expectedAdjustmentCount = 2;
         this.alertConfigs.push(tAlertConfig);
 
         tAlertConfig = new AlertConfig(
             AlertType.BiggestDelta, Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple3)));
         tAlertConfig.maxValue = Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple4));
+        tAlertConfig.expectedAdjustmentCount = 3;
         this.alertConfigs.push(tAlertConfig);
 
         tAlertConfig = new AlertConfig(
             AlertType.BiggestDelta, Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple4)));
         tAlertConfig.maxValue = Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple5));
+        tAlertConfig.expectedAdjustmentCount = 4;
         this.alertConfigs.push(tAlertConfig);
 
         tAlertConfig = new AlertConfig(
             AlertType.BiggestDelta, Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple5)));
         tAlertConfig.maxValue = Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple6));
+        tAlertConfig.expectedAdjustmentCount = 5;
         this.alertConfigs.push(tAlertConfig);
 
         tAlertConfig = new AlertConfig(
             AlertType.BiggestDelta, Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple6)));
         tAlertConfig.maxValue = Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple7));
+        tAlertConfig.expectedAdjustmentCount = 5;
         this.alertConfigs.push(tAlertConfig);
 
         tAlertConfig = new AlertConfig(
             AlertType.BiggestDelta, Number(engineConfig.getConfig(EngineConfigProperty.ALERTDeltaMultiple7)));
         tAlertConfig.maxValue = 110; //Note that the delta of an option cannot go over 100 so this is a safe cap
+        tAlertConfig.expectedAdjustmentCount = 5;
         this.alertConfigs.push(tAlertConfig);
     }
 
@@ -89,6 +96,7 @@ export class TradingEngine {
             //We need this because if we highlight the PLPercent for MaxGain we don't want it to go to normal 
             //after checking MaxLoss
             let plAlreadyHighlighted: boolean = false;
+            let deltaAlreadyHighlighted: boolean = false;
             if (position.symbol == null) {
                 JLog.error("One of the positiosn had a null/undefined symbol, so skipping it");
                 continue;
@@ -97,19 +105,27 @@ export class TradingEngine {
                 if (alertConfig.alertType === AlertType.BiggestDelta) {
                     //The biggest delta check is a multiple--so the biggest delta in the position must be >= the
                     //multiple times the original delta
-                    if (position.getBiggestDelta() >= alertConfig.alertValue * position.getBiggestDelta() &&
-                        position.getBiggestDelta() < alertConfig.maxValue * position.getBiggestDelta()) {
+                    if (JLog.isDebug()) JLog.debug(`GoingToCompareDelta for ${position.symbol}, biggest delta is ${position.getBiggestDelta()} 
+                                 and readInBiggestDeltaOpen is ${position.readInBiggestDeltaOpen} alertConfig.alertValue: ${alertConfig.alertValue}
+                                 alertConfig.maxValue: ${alertConfig.maxValue} (which totals value * open delta): ${alertConfig.alertValue * position.readInBiggestDeltaOpen}`);
+                    //Check to see if an ajustment has already been made
+                    let wAlreadyAdjusted : boolean = (position.rollCredits.length >= alertConfig.expectedAdjustmentCount);
+                    if ((wAlreadyAdjusted === false) && (position.getBiggestDelta() >= alertConfig.alertValue * position.readInBiggestDeltaOpen) &&
+                        (position.getBiggestDelta() < alertConfig.maxValue * position.readInBiggestDeltaOpen) ) {
                             if (JLog.isDebug()) JLog.debug(`Delta Alert being thrown! ${position.symbol} 
                                     Biggest Delta: ${position.getBiggestDelta()}
                                     Biggest Delta at Open: ${position.getBiggestDelta()}
                                     Alert value: ${alertConfig.alertValue}
                                     Alert max value: ${alertConfig.maxValue}`);
+
+                        
                         let alertedState: string = engineState.getStateByStr(
                             `${position.symbol}-${AlertType[AlertType.BiggestDelta]}-${alertConfig.alertValue}`);
 
                         //Call highlight function
                         if (JLog.isDebug()) JLog.debug(`Biggest Delta exceeded alert ${position.symbol}, so setting to PINK`);
                         this.highlightFunction(position.symbol, AlertType.BiggestDelta, HighlightType.PINK);
+                        deltaAlreadyHighlighted = true;
 
                         if (alertedState === "Done") continue;
                         if (JLog.isDebug()) JLog.debug(`Creating Delta alert for ${position.symbol}`);
@@ -122,7 +138,7 @@ export class TradingEngine {
                             `${position.symbol}-${AlertType[AlertType.BiggestDelta]}-${alertConfig.alertValue}`,
                             "Done");
                     }
-                    else {
+                    else if (deltaAlreadyHighlighted === false) {
                         if (JLog.isDebug()) JLog.debug(`MaxGain wasn't in threshold for ${position.symbol}, so setting to normal`);
                         if (this.highlightFunction != null)
                             this.highlightFunction(position.symbol, AlertType.BiggestDelta, HighlightType.NORMAL);
