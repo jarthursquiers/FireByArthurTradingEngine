@@ -263,6 +263,8 @@ export class OpenPositionsSheet {
                 closedSheet.getRange(targetRange.getRow(), OpenPositionsColumn.DaysInTrade).setFormula("=DATEDIF(R" + targetRange.getRow() + ",W" + targetRange.getRow() + ",\"D\")");
 
                 sheet.deleteRow(cIndex);
+                //Remove the position from the portfolio so we don't get alerts on it
+                Portfolio.instance().removePosition(row[OpenPositionsColumn.Symbol - 1]);
                 //Since we deleted one, we need to go back one row in the loop
                 cIndex--;
             }

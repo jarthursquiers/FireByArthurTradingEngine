@@ -65,6 +65,10 @@ export class Portfolio {
         return wPos;
     }
 
+    removePosition(symbol : string) {
+        this.positions.remove(symbol);
+    }
+
     setPosition(symbol:string, position: OptionsPosition) {
         if (symbol == null) JLog.error("Portfolio.setPosition()-> Adding a null/undefined position to the portfolio");
         else this.positions.put(symbol, position);

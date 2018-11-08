@@ -60,7 +60,7 @@ export class EngineState {
     clearSymbol(symbol : string) {
         let keys : string[] = this.stateHash.getKeys();
         for (let key of keys) {
-            if (key.indexOf(symbol) === 0) {
+            if (key.indexOf(symbol+"-") === 0) {
                 this.stateHash.remove(key);
             }
         }
