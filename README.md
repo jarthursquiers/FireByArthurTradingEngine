@@ -8,6 +8,7 @@ The official site for this project is on [FireByArthur.com](https://firebyarthur
 ## Getting the FireByArthurTradingEngine up and running.
 
 - Install Node.js and Visual Studio Code
+- Clone the FireByArthur repository to a directory on your computer 
 - Install typescript module: npm install typescript --save
 - Install ts-node (for running the unit tests locally): npm install ts-node --save
 - Install google app script types: npm install @types/google-apps-script --save
