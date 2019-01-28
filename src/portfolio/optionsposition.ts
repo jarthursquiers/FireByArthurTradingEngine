@@ -15,6 +15,7 @@ export class OptionsPosition {
     
     readInBiggestDeltaOpen: number = 0;
     readInPositionNetLiq: number = 0;
+    daysInTrade: number = 0;
 
 
     adjustments: number[];

@@ -61,6 +61,9 @@ export class OpenPositionsSheet {
             let wNetLiq : number = Number(row[OpenPositionsColumn.NetLiq-1]);
             wPosition.readInPositionNetLiq = wNetLiq;
 
+            let wDaysInTrade: number = Number(row[OpenPositionsColumn.DaysInTrade -1]);
+            wPosition.daysInTrade = wDaysInTrade;
+
 
             let contractCodes : string = `${row[OpenPositionsColumn.ContractCodes -1]}`;
 
@@ -312,6 +315,9 @@ export class OpenPositionsSheet {
                 }
                 else if (alertType === AlertType.MaxGain) {
                     tmpField = sheet.getRange(i, OpenPositionsColumn.ProfitLossPercent);
+                }
+                else if (alertType === AlertType.DailyReturnMet) {
+                    tmpField = sheet.getRange(i, OpenPositionsColumn.ProfitLoss);
                 }
                 else if (alertType === AlertType.MaxLoss) {
                     tmpField = sheet.getRange(i, OpenPositionsColumn.ProfitLossPercent);

@@ -105,23 +105,29 @@ export class EngineConfig {
             case EngineConfigProperty[EngineConfigProperty.TDAmeritradeAPIClientId]:
                 value = "Your.TDA.developer.Secret";
                 break;
-                case EngineConfigProperty[EngineConfigProperty.TDAmeritradeAPIClientId]:
+            case EngineConfigProperty[EngineConfigProperty.TDAmeritradeAPIClientId]:
                 value = "Your.TDA.developer.ClientId";
                 break;
             case EngineConfigProperty[EngineConfigProperty.TDAmeritradeAPIClientId]:
                 value = "Your.TDA.developer.Secret";
                 break;
-                case EngineConfigProperty[EngineConfigProperty.TDAmeritradeAPIClientId]:
+            case EngineConfigProperty[EngineConfigProperty.TDAmeritradeAPIClientId]:
                 value = "Your.TDA.developer.ClientId";
                 break;
             case EngineConfigProperty[EngineConfigProperty.PushoverAppKey]:
                 value = "Your.Pushover.AppKey";
                 break;
-                case EngineConfigProperty[EngineConfigProperty.PushoverDeviceName]:
+            case EngineConfigProperty[EngineConfigProperty.PushoverDeviceName]:
                 value = "Your.Pushover.DeviceName";
                 break;
             case EngineConfigProperty[EngineConfigProperty.PushoverUserKey]:
                 value = "Your.Pushover.UserKey";
+                break;
+            case EngineConfigProperty[EngineConfigProperty.StrikeBreachAlertEnabled]:
+                value = "0";
+                break;
+            case EngineConfigProperty[EngineConfigProperty.DailyReturnMetAlertEnabled]:
+                value = "0";
                 break;
         }
 
@@ -154,5 +160,7 @@ export enum EngineConfigProperty {
     TDAmeritradeAPISecret,
     PushoverAppKey,
     PushoverUserKey,
-    PushoverDeviceName
+    PushoverDeviceName,
+    StrikeBreachAlertEnabled,
+    DailyReturnMetAlertEnabled
 }

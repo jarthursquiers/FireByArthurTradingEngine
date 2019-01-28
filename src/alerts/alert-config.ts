@@ -16,5 +16,7 @@ export enum AlertType {
     BiggestDelta,
     MaxLoss,
     MaxGain,
-    DaysTillExpiration
+    DaysTillExpiration,
+    StrikeBreached,
+    DailyReturnMet
 }

@@ -16,16 +16,16 @@ import { JLog, JLogLevel } from '../utils/jlog';
 import { TotalsSheet } from '../sheets/totals-sheet';
 import { tdaLogin, authCallback, testTDAmeritrade } from '../brokerage/tdameritrade/tda-api';
 
-export function onOpen() {
+export function FBATEOnOpen() {
     var ui = SpreadsheetApp.getUi();
     ui.createMenu('Fire By Arthur Trading Engine')
-      .addItem('Run','FireByArthurTradingEngine.run')
-      .addItem('Load CSV','FireByArthurTradingEngine.loadCSVData')
+      .addItem('Run','FBATERun')
+      .addItem('Load CSV','FBATELoadCSVData')
       .addToUi();
 }
 
 
-export function run() {
+export function FBATERun() {
 
       //setting it for Google Apps logging
     JLog.setLoggingMethod((text) => {console.log(text)});
@@ -122,7 +122,7 @@ export function runCIProcess() {
     MailApp.sendEmail(EngineConfig.instance().getConfig(EngineConfigProperty.NotificationEmails),subject , msgString);
 }
 
-export function loadCSVData() {
+export function FBATELoadCSVData() {
     let tOpenSheet: OpenPositionsSheet = new OpenPositionsSheet();
     let portfolio = Portfolio.instance();
     tOpenSheet.read(portfolio);

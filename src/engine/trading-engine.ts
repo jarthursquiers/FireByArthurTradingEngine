@@ -79,6 +79,12 @@ export class TradingEngine {
         tAlertConfig.maxValue = 110; //Note that the delta of an option cannot go over 100 so this is a safe cap
         tAlertConfig.expectedAdjustmentCount = 5;
         this.alertConfigs.push(tAlertConfig);
+
+        tAlertConfig = new AlertConfig(AlertType.StrikeBreached,Number(engineConfig.getConfig(EngineConfigProperty.StrikeBreachAlertEnabled)));
+        this.alertConfigs.push(tAlertConfig);
+
+        tAlertConfig = new AlertConfig(AlertType.DailyReturnMet, Number(engineConfig.getConfig(EngineConfigProperty.DailyReturnMetAlertEnabled)));
+        this.alertConfigs.push(tAlertConfig);
     }
 
     processAlerts(portfolio: Portfolio): TradeAlert[] {
@@ -239,6 +245,68 @@ export class TradingEngine {
                             this.highlightFunction(position.symbol, AlertType.MaxLoss, HighlightType.NORMAL);
                         }
                     }
+
+                }
+
+                 //Strike Breached closing alert
+                else if (alertConfig.alertType === AlertType.StrikeBreached) {
+               
+                    //TODO: Add strike breached code
+                }
+
+                else if (alertConfig.alertType === AlertType.DailyReturnMet) {
+                    if (alertConfig.alertValue === 0) continue; //get outa here
+                    //vars needed
+                    let originalDTE = position.originalDTE;
+                    let originalCredit = position.originalCredit;
+                    let daysInTrade = position.daysInTrade;
+
+                    let minimumPL = originalCredit / 4;
+                    let positionPL = position.getPositionPL();
+
+                    if (daysInTrade === 0) daysInTrade = 1;
+                    if (originalDTE === 0) daysInTrade = 1;
+
+                    let expectedProfitPerDay = originalCredit /  originalDTE;
+                    let actualProfitPerDay = positionPL / daysInTrade;
+                    
+
+                    if (JLog.isDebug()) JLog.debug(`GoingToCheckDailyReturnMet for ${position.symbol}, originalDTE delta is ${originalDTE} 
+                    and originalCredit is ${originalCredit} alertConfig.alertValue: ${alertConfig.alertValue}
+                    daysInTrade: ${position.daysInTrade}, minimumPL: ${minimumPL}, positionPL: ${positionPL}
+                     expectedProfitPerDay: ${expectedProfitPerDay}, actualProfitPerDay: ${actualProfitPerDay}`);
+                 
+
+                    if ((positionPL > minimumPL) && (actualProfitPerDay > expectedProfitPerDay)) {
+                        if (JLog.isDebug()) JLog.debug(`Daily Return Met! ${position.symbol}`);
+                        let alertedState: string = engineState.getStateByStr(
+                            `${position.symbol}-${AlertType[AlertType.DailyReturnMet]}`);
+                        //Highligh function
+                        if (this.highlightFunction != null && plAlreadyHighlighted === false) {
+                            if (JLog.isDebug()) JLog.debug(`Daily Return met ${position.symbol}, so setting to GREEN`);
+                            if (this.highlightFunction != null)
+                                this.highlightFunction(position.symbol, AlertType.DailyReturnMet, HighlightType.GREEN);
+                        }
+
+                        if (alertedState === "Done") continue;
+                        if (JLog.isDebug()) JLog.debug(`Creating DailyReturnMet alert for ${position.symbol}`);
+                        let alert = new TradeAlert();
+                        alert.alertType = alertConfig.alertType;
+                        alert.alertSymbol = position.symbol;
+                        alert.alertMessage = `${position.symbol} Alert! Daily Return is met at $${positionPL}`;
+                        tradeAlerts.push(alert);
+                        engineState.setStateByStr(
+                            `${position.symbol}-${AlertType[AlertType.DailyReturnMet]}`,
+                            "Done");
+                    }
+                    else {
+                        //Highligh function
+                        if (this.highlightFunction != null && plAlreadyHighlighted === false) {
+                            if (JLog.isDebug()) JLog.debug(`DailyREturnMet didn't hit alert for ${position.symbol}, so setting to normal`);
+                            this.highlightFunction(position.symbol, AlertType.DailyReturnMet, HighlightType.NORMAL);
+                        }
+                    }
+
                 }
             }
         }
