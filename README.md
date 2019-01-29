@@ -19,24 +19,22 @@ The official site for this project is on [FireByArthur.com](https://firebyarthur
 ## To deploy to Google Sheets:
 
 - Install clasp globally: npm install @google/clasp -g
-- Run clasp to create a new app script project in your google account (I suggest calling the script "FireByArthurTradingEngine"): clasp create [scriptTitle] 
-- Push your Google App script to your google account: clasp push
-- Create a deployable version of that app with the clasp command: clasp version
+- It is recommended to first create a GoogleSheet and open the attached script by going to Tools | Script Editor
+- At this point, you should create a separate local directory that is used for staging a deployingment to your Google Sheet. If you look at the googledeploy.cmd for an example of kicking off a deployment, you see how that directory can be named FireByArthurTradingEngineV3.
+- Now, in the Google Sheet script editor, you can get the project ID of the script by going to File | Project Properties.
+- Once you have that ID, you can clone the Google Script to your local deployment directory by changing to that directory and executing this command: clasp clone <Project ID>
+- The Code.gs file will appear in that directory and now a deployment can be created by copying over the src directory (see googledeploy.cmd script for an example), and modifying the Code.gs.
+- Push your Google App script to the sheet with: clasp push
+- Keep in mind that with this method, we pushing the entire trading engine as the attached script for the Google Sheet you created. All of the scripts from the engine will appear as different files, and Code.gs is still the primary launching point.
 
-- Create a new Google Sheet on docs.google.com/sheets. Go to Tools|Script Editor.
-- In the script editor, go to Resources | Libraries... Paste the script id of the script app you created with clasp and click "Add". 
-        (If you don't have the script id, run "clasp open" on your local command line. The script app will
-        open in a new editor in your browser. Got to File|properties in that script editor and you will see the script ID).
-        - Select "version 1" of the script (and select development mode so you always use the newly pushed changes).
-        - Click save.
 
-- Back on the script editor that is attached to your new Google Sheet, enter a call to the run() method on the script project.
-    Like this:
+- You want to make sure the Code.gs file contains at least contains this method.
+
     
 ```javascript
-    function myFunction() {
-        FireByArthurTradingEngine.run();
-    }
+   function runEngine() {
+    FBATERun();
+}
 ```
 
 
@@ -56,54 +54,64 @@ so it will only import when there is new data to be imported.
 (Note, if you want continuous integration running, you can create an event for the "runContinuousIntegration() method that runs every minute).
 
 ```javascript
-    function onOpen() {
-      var ui = SpreadsheetApp.getUi();
-          ui.createMenu('J. Arthur Trading')
-          .addItem('Run Test Suite','runTestSuite')
-          .addToUi();
+  function onOpen() {
+    FBATEOnOpen();  
+}
 
-    }
-
-    function runTestSuite() {
-        FireByArthurTradingEngine.googleSheetsTestSuite();
-    }
-
-    function runContinuousIntegration() {
-        if (testScriptChanged()) {
-            FireByArthurTradingEngine.runCIProcess();
-        }
-    }
-
-    function createTestingTriggers() {
-        ScriptApp.newTrigger('runContinuousIntegration')
-           .timeBased()
-           .everyMinutes(1)
-           .create();
-    }
+function runEngine() {
+    FBATERun();
+}
 
 
+function enableTrigger() {
+   ScriptApp.newTrigger('runEngine')
+      .timeBased()
+      .everyMinutes(1)
+      .create();
+}
 
-    function testScriptChanged() {
-        var file = DriveApp.getFilesByName("FireByArthurTrading").next();
-        var fileDate = file.getLastUpdated();
-        Logger.log(fileDate);
-   
-        var scriptUpdatedStr = PropertiesService.getScriptProperties().getProperty("SCRIPT_LAST_UPDATED");
-        PropertiesService.getScriptProperties().setProperty("SCRIPT_LAST_UPDATED", fileDate+"");
-   
-        if (scriptUpdatedStr == null) {
-            return true;
-        }
-   
-        var scriptUpdatedDate = new Date(scriptUpdatedStr);
-        if (FireByArthurTrading.compareDates(fileDate, scriptUpdatedDate) == 1) {
-            return true;
-        }
-        else {
-            return false;
-        }
- 
-    }  
+function disableTrigger() {
+   var triggers = ScriptApp.getProjectTriggers();
+   for (var i = 0; i < triggers.length; i++) {
+     if (triggers[i].getHandlerFunction().equals("runEngine")) {
+       ScriptApp.deleteTrigger(triggers[i]);
+     }    
+    
+   }
+  
+}
+
+function createTimedTriggers() {
+  ScriptApp.newTrigger('enableTrigger')
+      .timeBased()
+      .atHour(6)
+      .everyDays(1)
+      .create();
+  
+  ScriptApp.newTrigger('disableTrigger')
+      .timeBased()
+      .atHour(16)
+      .everyDays(1)
+      .create();
+}
+
+
+function tdaTest() {
+    tdAmeritradeTest();
+}
+
+function tdaLogin() {
+    tdAmeritradeLogin();
+}
+
+function tdaLogoff() {
+    tdaLogout();
+}
+
+function authCallback(request) {
+    tdaCallback(request);
+}
+
 ```
 
 ## Disclaimer

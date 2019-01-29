@@ -129,6 +129,9 @@ export class EngineConfig {
             case EngineConfigProperty[EngineConfigProperty.DailyReturnMetAlertEnabled]:
                 value = "0";
                 break;
+            case EngineConfigProperty[EngineConfigProperty.PortfolioName]:
+                value = "FBATE Portfolio";
+                break;
         }
 
         return value;
@@ -162,5 +165,6 @@ export enum EngineConfigProperty {
     PushoverUserKey,
     PushoverDeviceName,
     StrikeBreachAlertEnabled,
-    DailyReturnMetAlertEnabled
+    DailyReturnMetAlertEnabled,
+    PortfolioName
 }

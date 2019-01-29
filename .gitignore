@@ -2,3 +2,5 @@ node_modules/
 .clasp.json
 appsscript.json
 .claspignore
+sarairadeploy.cmd
+jiradeploy.cmd

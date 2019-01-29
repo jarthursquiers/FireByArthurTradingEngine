@@ -67,7 +67,7 @@ export class TotalsSheet {
         sheet.getRange(TotalsRow.AveragePLPerPosition,2).setFormula("=B18/B22");
 
         sheet.getRange(TotalsRow.AverageDaysInTrade,1).setFontWeight("bold").setValue("Average Days In Trade");
-        sheet.getRange(TotalsRow.AverageDaysInTrade,2).setFormula("=AVERAGE('Closed Positions'!W2:W)");
+        sheet.getRange(TotalsRow.AverageDaysInTrade,2).setFormula("=AVERAGE('Closed Positions'!S2:S)");
 
 
         return sheet;
