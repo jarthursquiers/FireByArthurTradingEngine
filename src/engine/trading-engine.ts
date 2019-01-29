@@ -282,7 +282,7 @@ export class TradingEngine {
                         let alertedState: string = engineState.getStateByStr(
                             `${position.symbol}-${AlertType[AlertType.DailyReturnMet]}`);
                         //Highligh function
-                        if (this.highlightFunction != null && plAlreadyHighlighted === false) {
+                        if (this.highlightFunction != null) {
                             if (JLog.isDebug()) JLog.debug(`Daily Return met ${position.symbol}, so setting to GREEN`);
                             if (this.highlightFunction != null)
                                 this.highlightFunction(position.symbol, AlertType.DailyReturnMet, HighlightType.GREEN);
@@ -301,7 +301,7 @@ export class TradingEngine {
                     }
                     else {
                         //Highligh function
-                        if (this.highlightFunction != null && plAlreadyHighlighted === false) {
+                        if (this.highlightFunction != null) {
                             if (JLog.isDebug()) JLog.debug(`DailyREturnMet didn't hit alert for ${position.symbol}, so setting to normal`);
                             this.highlightFunction(position.symbol, AlertType.DailyReturnMet, HighlightType.NORMAL);
                         }

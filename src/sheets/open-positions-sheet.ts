@@ -228,6 +228,10 @@ export class OpenPositionsSheet {
                     sheet.getRange(lastRow, OpenPositionsColumn.OriginalDTE).setValue(position.originalDTE);
                     sheet.getRange(lastRow, OpenPositionsColumn.BiggestDeltaOpen).setValue(position.getBiggestDelta());
                     sheet.getRange(lastRow, OpenPositionsColumn.ContractCodes).setValue(position.getContractCodes());
+                    sheet.getRange(lastRow, OpenPositionsColumn.DailyProfitReached).setFormula("=AND(Z" + lastRow + " > Y"+lastRow+", H"+lastRow+" > 0.25)");
+                    sheet.getRange(lastRow, OpenPositionsColumn.ExpectedDailyProfit).setFormula("=D" + lastRow + " / T"+lastRow);
+                    sheet.getRange(lastRow, OpenPositionsColumn.CurrentDailyProfit).setFormula("=G" + lastRow + " / S"+lastRow);
+                    
                     JLog.debug(`Inserted the position ${position.symbol} at the end of the OpenPositions spreadsheet`);
                 }
             }
@@ -306,7 +310,7 @@ export class OpenPositionsSheet {
             i++;
             let tmpSymbol = row[OpenPositionsColumn.Symbol-1];
             if (`${tmpSymbol}` === symbol) {
-                let tmpField;
+                let tmpField : GoogleAppsScript.Spreadsheet.Range;
                 if (alertType === AlertType.BiggestDelta) {
                     tmpField = sheet.getRange(i, OpenPositionsColumn.BiggestDelta);
                 }
@@ -318,9 +322,11 @@ export class OpenPositionsSheet {
                 }
                 else if (alertType === AlertType.DailyReturnMet) {
                     tmpField = sheet.getRange(i, OpenPositionsColumn.ProfitLoss);
+                    if (highlight === HighlightType.GREEN) tmpField.setNote("Daily Profit Return Was Met");
                 }
                 else if (alertType === AlertType.MaxLoss) {
                     tmpField = sheet.getRange(i, OpenPositionsColumn.ProfitLossPercent);
+        
                 }
 
                 if (highlight === HighlightType.PINK) {
@@ -379,6 +385,9 @@ export class OpenPositionsSheet {
         sheet.getRange(1, OpenPositionsColumn.OriginalDTE).setValue("Starting DTE");
         sheet.getRange(1, OpenPositionsColumn.BiggestDeltaOpen).setValue("Biggest Delta On Open");
         sheet.getRange(1, OpenPositionsColumn.ContractCodes).setValue("Contract Codes");
+        sheet.getRange(1, OpenPositionsColumn.DailyProfitReached).setValue("DPR");
+        sheet.getRange(1, OpenPositionsColumn.ExpectedDailyProfit).setValue("Expected Daily Profit");
+        sheet.getRange(1, OpenPositionsColumn.CurrentDailyProfit).setValue("Current Daily Profit");
     }
 
 }
@@ -406,7 +415,10 @@ export enum OpenPositionsColumn {
     OriginalDTE = 20,
     BiggestDeltaOpen = 21,
     ContractCodes = 22,
-    ClosedDate = 23
+    ClosedDate = 23,
+    DailyProfitReached = 24,
+    ExpectedDailyProfit = 25,
+    CurrentDailyProfit = 26
 }
 
 export enum HighlightType {
