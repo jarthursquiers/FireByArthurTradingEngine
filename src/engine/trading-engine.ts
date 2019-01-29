@@ -251,7 +251,46 @@ export class TradingEngine {
                  //Strike Breached closing alert
                 else if (alertConfig.alertType === AlertType.StrikeBreached) {
                
-                    //TODO: Add strike breached code
+                    if (alertConfig.alertValue === 0) continue; //get outa here
+                    //vars needed
+                    let underlyingPrice = position.underlyingPrice;
+                    if (underlyingPrice === 0) continue; //get outa here.
+
+                    
+
+                    if (JLog.isDebug()) JLog.debug(`GoingToCheckStrikeBreached for ${position.symbol}`);
+                 
+
+                    if (position.isStrikeBreached()) {
+                        if (JLog.isDebug()) JLog.debug(`Strike Breached!! ${position.symbol}`);
+                        let alertedState: string = engineState.getStateByStr(
+                            `${position.symbol}-${AlertType[AlertType.StrikeBreached]}`);
+                        //Highligh function
+                        if (this.highlightFunction != null) {
+                            if (JLog.isDebug()) JLog.debug(`Strike Breached ${position.symbol}, so setting to RED`);
+                            if (this.highlightFunction != null)
+                                this.highlightFunction(position.symbol, AlertType.StrikeBreached, HighlightType.RED);
+                        }
+
+                        if (alertedState === "Done") continue;
+                        if (JLog.isDebug()) JLog.debug(`Creating StrikeBreached alert for ${position.symbol}`);
+                        let alert = new TradeAlert();
+                        alert.alertType = alertConfig.alertType;
+                        alert.alertSymbol = position.symbol;
+                        alert.alertMessage = `${position.symbol} Alert! Strike Breached due to price at $${underlyingPrice}`;
+                        tradeAlerts.push(alert);
+                        engineState.setStateByStr(
+                            `${position.symbol}-${AlertType[AlertType.StrikeBreached]}`,
+                            "Done");
+                    }
+                    else {
+                        //Highligh function
+                        if (this.highlightFunction != null) {
+                            if (JLog.isDebug()) JLog.debug(`StrikeBreached didn't hit alert for ${position.symbol}, so setting to normal`);
+                            this.highlightFunction(position.symbol, AlertType.StrikeBreached, HighlightType.NORMAL);
+                        }
+                    }
+
                 }
 
                 else if (alertConfig.alertType === AlertType.DailyReturnMet) {

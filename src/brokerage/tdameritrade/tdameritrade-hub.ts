@@ -43,6 +43,8 @@ export class TDAmeritradeHub implements IDataLoader {
                 let deltaStr = this.getValueFromJSON(quoteStr, "delta");
                 let lastPrice = this.getValueFromJSON(quoteStr, "mark");
                 let daysToExpiration = this.getValueFromJSONOccurance(quoteStr, "daysToExpiration", 2);
+                let underlyingPrice = this.getValueFromJSON(quoteStr, "underlyingPrice");
+                position.underlyingPrice = Number(underlyingPrice);
 
                 if (JLog.isDebug()) JLog.debug(`daysToExpiration-read from tdameritrade quote was ${daysToExpiration} for ${option.symbol}`);
 

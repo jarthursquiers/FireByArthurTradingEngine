@@ -16,6 +16,7 @@ export class OptionsPosition {
     readInBiggestDeltaOpen: number = 0;
     readInPositionNetLiq: number = 0;
     daysInTrade: number = 0;
+    underlyingPrice: number = 0;
 
 
     adjustments: number[];
@@ -123,6 +124,22 @@ export class OptionsPosition {
 
         if (wDeltasFound) return biggest;
         else return this.readInBiggestDeltaOpen;
+    }
+
+    isStrikeBreached(): boolean {
+       
+        if (this.underlyingPrice === 0) return false;
+
+        for (let option of this.options) {
+            if (option.callOrPut.toLowerCase() === "call") {
+                if (this.underlyingPrice > option.strikePrice) return true;
+            }
+            else {
+                if (this.underlyingPrice < option.strikePrice) return true;
+            }
+        }
+
+        return false;
     }
 
     getContractCodes() : string {

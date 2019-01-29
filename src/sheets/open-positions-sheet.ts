@@ -328,6 +328,10 @@ export class OpenPositionsSheet {
                     tmpField = sheet.getRange(i, OpenPositionsColumn.ProfitLossPercent);
         
                 }
+                else if (alertType == AlertType.StrikeBreached) {
+                    tmpField = sheet.getRange(i, OpenPositionsColumn.Symbol);
+                    if (highlight === HighlightType.RED) tmpField.setNote("Strike was Breached!");
+                }
 
                 if (highlight === HighlightType.PINK) {
                     tmpField.setBackground("pink");
