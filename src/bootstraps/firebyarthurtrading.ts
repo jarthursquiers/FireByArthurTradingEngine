@@ -80,8 +80,8 @@ export function FBATERun() {
 
         let tradingEngine : TradingEngine = new TradingEngine();
         let openSheet: OpenPositionsSheet = new OpenPositionsSheet();
-        tradingEngine.setHighlightFunction((symbol, alertType, highlightType) => {
-            openSheet.highlightAlertedField(symbol, alertType, highlightType);    
+        tradingEngine.setHighlightFunction((symbol, alertType, highlightType, noteText) => {
+            openSheet.highlightAlertedField(symbol, alertType, highlightType, noteText);    
         });
         tradingEngine.loadAlerts();
 

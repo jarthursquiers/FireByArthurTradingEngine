@@ -13,9 +13,9 @@ import { HighlightType } from '../sheets/open-positions-sheet';
 
 export class TradingEngine {
     private alertConfigs: AlertConfig[] = [];
-    private highlightFunction: (symbol: string, alertType: AlertType, highlightType: HighlightType) => void;
+    private highlightFunction: (symbol: string, alertType: AlertType, highlightType: HighlightType, noteText : string) => void;
 
-    setHighlightFunction(highlightFunction: (symbol: string, alertType: AlertType, highlightType: HighlightType) => void) {
+    setHighlightFunction(highlightFunction: (symbol: string, alertType: AlertType, highlightType: HighlightType, noteText) => void) {
         this.highlightFunction = highlightFunction;
     }
 
@@ -80,11 +80,20 @@ export class TradingEngine {
         tAlertConfig.expectedAdjustmentCount = 5;
         this.alertConfigs.push(tAlertConfig);
 
-        tAlertConfig = new AlertConfig(AlertType.StrikeBreached,Number(engineConfig.getConfig(EngineConfigProperty.StrikeBreachAlertEnabled)));
-        this.alertConfigs.push(tAlertConfig);
+        if (engineConfig.getConfig(EngineConfigProperty.StrikeBreachAlertEnabled) === "1") {
+            tAlertConfig = new AlertConfig(AlertType.StrikeBreached,Number(engineConfig.getConfig(EngineConfigProperty.StrikeBreachAlertEnabled)));
+            this.alertConfigs.push(tAlertConfig);
+        }
 
-        tAlertConfig = new AlertConfig(AlertType.DailyReturnMet, Number(engineConfig.getConfig(EngineConfigProperty.DailyReturnMetAlertEnabled)));
-        this.alertConfigs.push(tAlertConfig);
+        if (engineConfig.getConfig(EngineConfigProperty.DailyReturnMetAlertEnabled) === "1") {
+            tAlertConfig = new AlertConfig(AlertType.DailyReturnMet, Number(engineConfig.getConfig(EngineConfigProperty.DailyReturnMetAlertEnabled)));
+            this.alertConfigs.push(tAlertConfig);
+        }
+
+        if (engineConfig.getConfig(EngineConfigProperty.JArthurRulesEnabled) === "1") {
+            tAlertConfig = new AlertConfig(AlertType.JArthurRules, Number("1"));
+            this.alertConfigs.push(tAlertConfig);
+        }
     }
 
     processAlerts(portfolio: Portfolio): TradeAlert[] {
@@ -130,7 +139,9 @@ export class TradingEngine {
 
                         //Call highlight function
                         if (JLog.isDebug()) JLog.debug(`Biggest Delta exceeded alert ${position.symbol}, so setting to PINK`);
-                        this.highlightFunction(position.symbol, AlertType.BiggestDelta, HighlightType.PINK);
+                        let newNote = null;
+                        if (alertedState !== "Done") newNote = new Date()+": Biggest Delta Exceded";
+                        this.highlightFunction(position.symbol, AlertType.BiggestDelta, HighlightType.PINK, newNote);
                         deltaAlreadyHighlighted = true;
 
                         if (alertedState === "Done") continue;
@@ -147,7 +158,7 @@ export class TradingEngine {
                     else if (deltaAlreadyHighlighted === false) {
                         if (JLog.isDebug()) JLog.debug(`MaxGain wasn't in threshold for ${position.symbol}, so setting to normal`);
                         if (this.highlightFunction != null)
-                            this.highlightFunction(position.symbol, AlertType.BiggestDelta, HighlightType.NORMAL);
+                            this.highlightFunction(position.symbol, AlertType.BiggestDelta, HighlightType.NORMAL, null);
                     }
                 }
                 else if (alertConfig.alertType === AlertType.DaysTillExpiration) {
@@ -159,9 +170,12 @@ export class TradingEngine {
                             `${position.symbol}-${AlertType[AlertType.DaysTillExpiration]}-${alertConfig.alertValue}`);
 
                         //Highligh function
-                        if (this.highlightFunction != null)
+                        if (this.highlightFunction != null) {
                             if (JLog.isDebug()) JLog.debug(`Under days till expiration threshold for ${position.symbol}, so setting to RED`);
-                            this.highlightFunction(position.symbol, AlertType.DaysTillExpiration, HighlightType.RED);
+                            let newNote = null;
+                            if (alertedState !== "Done") newNote = new Date()+": Under days till expriation";
+                            this.highlightFunction(position.symbol, AlertType.DaysTillExpiration, HighlightType.RED, newNote);
+                        }
                         if (alertedState === "Done") continue;
                         if (JLog.isDebug()) JLog.debug(`Creating DTE Alert for ${position.symbol}`);
                         let alert = new TradeAlert();
@@ -176,7 +190,7 @@ export class TradingEngine {
                     else {
                         if (JLog.isDebug()) JLog.debug(`DTE above threshold for ${position.symbol}, so setting to normal`);
                         if (this.highlightFunction != null)
-                            this.highlightFunction(position.symbol, AlertType.DaysTillExpiration, HighlightType.NORMAL);
+                            this.highlightFunction(position.symbol, AlertType.DaysTillExpiration, HighlightType.NORMAL,null);
                     }
                 }
                 else if (alertConfig.alertType === AlertType.MaxGain) {
@@ -189,9 +203,12 @@ export class TradingEngine {
                         //Highligh function
                         if (this.highlightFunction != null && plAlreadyHighlighted === false) {
                             if (JLog.isDebug()) JLog.debug(`MaxGain above threshold for ${position.symbol}, so setting to GREEN`);
-                            if (this.highlightFunction != null)
-                                this.highlightFunction(position.symbol, AlertType.MaxGain, HighlightType.GREEN);
-                            plAlreadyHighlighted = true;
+                            if (this.highlightFunction != null) {
+                                let newNote = null;
+                                if (alertedState !== "Done") newNote = new Date()+": Max Gain Reached";
+                                this.highlightFunction(position.symbol, AlertType.MaxGain, HighlightType.GREEN, newNote);
+                                plAlreadyHighlighted = true;
+                            }
                         }
 
                         if (alertedState === "Done") continue;
@@ -209,7 +226,7 @@ export class TradingEngine {
                         //Highligh function
                         if (this.highlightFunction != null && plAlreadyHighlighted === false) {
                             if (JLog.isDebug()) JLog.debug(`MaxGain didn't hit alert for ${position.symbol}, so setting to normal`);
-                            this.highlightFunction(position.symbol, AlertType.MaxGain, HighlightType.NORMAL);
+                            this.highlightFunction(position.symbol, AlertType.MaxGain, HighlightType.NORMAL,null);
                         }
                     }
                 }
@@ -223,7 +240,9 @@ export class TradingEngine {
                         //Highligh function
                         if (this.highlightFunction != null) {
                             if (JLog.isDebug()) JLog.debug(`MaxLoss in threshold for ${position.symbol}, so setting to RED`);
-                            this.highlightFunction(position.symbol, AlertType.MaxLoss, HighlightType.RED);
+                            let newNote = null;
+                            if (alertedState !== "Done") newNote = new Date()+": Max Loss Reached";
+                            this.highlightFunction(position.symbol, AlertType.MaxLoss, HighlightType.RED, newNote);
                             plAlreadyHighlighted = true;
                         }
 
@@ -242,7 +261,7 @@ export class TradingEngine {
                         //Highlight function
                         if (this.highlightFunction != null && plAlreadyHighlighted === false) {
                             if (JLog.isDebug()) JLog.debug(`MaxLoss wasn't in threshold for ${position.symbol}, so setting to normal`);
-                            this.highlightFunction(position.symbol, AlertType.MaxLoss, HighlightType.NORMAL);
+                            this.highlightFunction(position.symbol, AlertType.MaxLoss, HighlightType.NORMAL, null);
                         }
                     }
 
@@ -268,8 +287,11 @@ export class TradingEngine {
                         //Highligh function
                         if (this.highlightFunction != null) {
                             if (JLog.isDebug()) JLog.debug(`Strike Breached ${position.symbol}, so setting to RED`);
-                            if (this.highlightFunction != null)
-                                this.highlightFunction(position.symbol, AlertType.StrikeBreached, HighlightType.RED);
+                            if (this.highlightFunction != null) {
+                                let newNote = null;
+                                if (alertedState !== "Done") newNote = new Date()+": Strike Breached";
+                                this.highlightFunction(position.symbol, AlertType.StrikeBreached, HighlightType.RED, newNote);
+                            }
                         }
 
                         if (alertedState === "Done") continue;
@@ -287,7 +309,7 @@ export class TradingEngine {
                         //Highligh function
                         if (this.highlightFunction != null) {
                             if (JLog.isDebug()) JLog.debug(`StrikeBreached didn't hit alert for ${position.symbol}, so setting to normal`);
-                            this.highlightFunction(position.symbol, AlertType.StrikeBreached, HighlightType.NORMAL);
+                            this.highlightFunction(position.symbol, AlertType.StrikeBreached, HighlightType.NORMAL, null);
                         }
                     }
 
@@ -323,8 +345,11 @@ export class TradingEngine {
                         //Highligh function
                         if (this.highlightFunction != null) {
                             if (JLog.isDebug()) JLog.debug(`Daily Return met ${position.symbol}, so setting to GREEN`);
-                            if (this.highlightFunction != null)
-                                this.highlightFunction(position.symbol, AlertType.DailyReturnMet, HighlightType.GREEN);
+                            if (this.highlightFunction != null) {
+                                let newNote = null;
+                                if (alertedState !== "Done") newNote =  new Date()+": Daily Return Met";
+                                this.highlightFunction(position.symbol, AlertType.DailyReturnMet, HighlightType.GREEN, newNote);
+                            }
                         }
 
                         if (alertedState === "Done") continue;
@@ -342,7 +367,74 @@ export class TradingEngine {
                         //Highligh function
                         if (this.highlightFunction != null) {
                             if (JLog.isDebug()) JLog.debug(`DailyREturnMet didn't hit alert for ${position.symbol}, so setting to normal`);
-                            this.highlightFunction(position.symbol, AlertType.DailyReturnMet, HighlightType.NORMAL);
+                            this.highlightFunction(position.symbol, AlertType.DailyReturnMet, HighlightType.NORMAL, null);
+                        }
+                    }
+
+                }
+
+                else if (alertConfig.alertType === AlertType.JArthurRules) {
+                    if (alertConfig.alertValue === 0) continue; //get outa here
+                    //vars needed
+                    let adjustmentsMade = 0;
+                    if (position.rollCredits != null) adjustmentsMade = position.rollCredits.length;
+                   
+
+
+                    if ((adjustmentsMade === 1) && (position.getPositionPLPercent() >= 25)) {
+                        if (JLog.isDebug()) JLog.debug(`Position had one adjustment and is over 25% profit! ${position.symbol}`);
+                        let alertedState: string = engineState.getStateByStr(
+                            `${position.symbol}-${AlertType[AlertType.JArthurRules]}`);
+                        //Highligh function
+                        if (this.highlightFunction != null) {
+                            if (JLog.isDebug()) JLog.debug(`Position had JArthurRules met ${position.symbol}, so setting to GREEN`);
+                            if (this.highlightFunction != null) {
+                                let newNote = null;
+                                if (alertedState !== "Done") newNote = new Date()+": 25% profit met with one adjustment";
+                                this.highlightFunction(position.symbol, AlertType.JArthurRules, HighlightType.GREEN, newNote);
+                                plAlreadyHighlighted = true;
+                            }
+                        }
+
+                        if (alertedState === "Done") continue;
+                        if (JLog.isDebug()) JLog.debug(`Creating JArthurRules alert for ${position.symbol}`);
+                        let alert = new TradeAlert();
+                        alert.alertType = alertConfig.alertType;
+                        alert.alertSymbol = position.symbol;
+                        alert.alertMessage = `${position.symbol} Alert! Position had one adjustment and profit is at $${position.getPositionPLPercent()}`;
+                        tradeAlerts.push(alert);
+                        engineState.setStateByStr(
+                            `${position.symbol}-${AlertType[AlertType.JArthurRules]}`,
+                            "Done");
+                    }
+                    else if (adjustmentsMade > 1 && position.getPositionPLPercent() >= 0 ) {
+                        let alertedState: string = engineState.getStateByStr(
+                            `${position.symbol}-${AlertType[AlertType.JArthurRules]}`);
+                        //Highligh function
+                        if (this.highlightFunction != null) {
+                            if (JLog.isDebug()) JLog.debug(`Position had JARthurRules met ${position.symbol}, so setting to GREEN`);
+                            let newNote = null;
+                            if (alertedState !== "Done") newNote = new Date()+": Above 0 profit with multiple adjustments";
+                                this.highlightFunction(position.symbol, AlertType.JArthurRules, HighlightType.GREEN, newNote);
+                                plAlreadyHighlighted = true;
+                        }
+
+                        if (alertedState === "Done") continue;
+                        if (JLog.isDebug()) JLog.debug(`Creating JArthurRules alert for ${position.symbol}`);
+                        let alert = new TradeAlert();
+                        alert.alertType = alertConfig.alertType;
+                        alert.alertSymbol = position.symbol;
+                        alert.alertMessage = `${position.symbol} Alert! Position had multiple adjustments and profit is above 0 at $${position.getPositionPLPercent()}`;
+                        tradeAlerts.push(alert);
+                        engineState.setStateByStr(
+                            `${position.symbol}-${AlertType[AlertType.JArthurRules]}`,
+                            "Done");
+                    }
+                    else {
+                        //Highligh function
+                        if (plAlreadyHighlighted === false && this.highlightFunction != null) {
+                            if (JLog.isDebug()) JLog.debug(`JArthurRulres didn't hit alert for ${position.symbol}, so setting to normal`);
+                            this.highlightFunction(position.symbol, AlertType.JArthurRules, HighlightType.NORMAL, null);
                         }
                     }
 

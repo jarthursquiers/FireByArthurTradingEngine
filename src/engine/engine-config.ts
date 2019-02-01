@@ -132,6 +132,9 @@ export class EngineConfig {
             case EngineConfigProperty[EngineConfigProperty.PortfolioName]:
                 value = "FBATE Portfolio";
                 break;
+            case EngineConfigProperty[EngineConfigProperty.JArthurRulesEnabled]:
+                value = "0";
+                break;
         }
 
         return value;
@@ -166,5 +169,6 @@ export enum EngineConfigProperty {
     PushoverDeviceName,
     StrikeBreachAlertEnabled,
     DailyReturnMetAlertEnabled,
-    PortfolioName
+    PortfolioName,
+    JArthurRulesEnabled
 }

@@ -278,7 +278,7 @@ export class OpenPositionsSheet {
         }
     }
 
-    highlightAlertedField(symbol: string, alertType: AlertType, highlight: HighlightType) {
+    highlightAlertedField(symbol: string, alertType: AlertType, highlight: HighlightType, noteText : string) {
         JLog.debug(`OpenPositionsSheet.highlightAlertedField(${symbol},${AlertType[alertType]},${HighlightType[highlight]}): Begin`);
         let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.sheetName);
         if (sheet == null) {
@@ -322,7 +322,6 @@ export class OpenPositionsSheet {
                 }
                 else if (alertType === AlertType.DailyReturnMet) {
                     tmpField = sheet.getRange(i, OpenPositionsColumn.ProfitLoss);
-                    if (highlight === HighlightType.GREEN) tmpField.setNote("Daily Profit Return Was Met");
                 }
                 else if (alertType === AlertType.MaxLoss) {
                     tmpField = sheet.getRange(i, OpenPositionsColumn.ProfitLossPercent);
@@ -330,7 +329,9 @@ export class OpenPositionsSheet {
                 }
                 else if (alertType == AlertType.StrikeBreached) {
                     tmpField = sheet.getRange(i, OpenPositionsColumn.Symbol);
-                    if (highlight === HighlightType.RED) tmpField.setNote("Strike was Breached!");
+                }
+                else if (alertType == AlertType.JArthurRules) {
+                    tmpField = sheet.getRange(i, OpenPositionsColumn.ProfitLossPercent);
                 }
 
                 if (highlight === HighlightType.PINK) {
@@ -345,6 +346,8 @@ export class OpenPositionsSheet {
                 else if (highlight === HighlightType.NORMAL) {
                     tmpField.setBackground(null);
                 }
+
+                if (noteText) tmpField.setNote(tmpField.getNote() + noteText+ "\n \n");
             }
 
         }

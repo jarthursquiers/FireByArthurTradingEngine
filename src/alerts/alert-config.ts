@@ -18,5 +18,6 @@ export enum AlertType {
     MaxGain,
     DaysTillExpiration,
     StrikeBreached,
-    DailyReturnMet
+    DailyReturnMet,
+    JArthurRules
 }
