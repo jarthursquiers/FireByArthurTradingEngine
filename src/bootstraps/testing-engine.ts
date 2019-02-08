@@ -17,6 +17,9 @@ import { EngineConfigSheet } from '../sheets/engine-config-sheet';
 import { EngineConfig, EngineConfigProperty } from '../engine/engine-config';
 import { Constants } from "../utils/constants";
 import { JLog, JLogLevel } from '../utils/jlog';
+import { TDAmeritradeHub } from '../brokerage/tdameritrade/tdameritrade-hub';
+import { TestData } from '../brokerage/testing/test-data';
+import { TradeFinderData } from '../market/trade-finder-data';
 
 
 
@@ -71,6 +74,7 @@ export function standaloneTestSuite() {
     for (let msg of failed) {
         console.log(`Failure Message: ${msg}`);
     }
+
 }
 
 function testEngineStateSheet(passed: string[], failed: string[]) {
@@ -166,8 +170,20 @@ function runStandaloneTests(passed: string[], failed: string[]) {
     testPortfolioLoad(passed, failed);
     testAlertsSystem(passed, failed);
     testTaskManager(passed, failed);
-  
+    testTradeFinder(passed, failed);
 
+}
+
+function testTradeFinder(passed : string[], failed: string[]) {
+    let tdaHub = new TDAmeritradeHub();
+    let prefDate = tdaHub.getPreferredExpirationDate(TestData.TDAOptionChainString);
+    let targetDate = "2019-06-28";
+    if (prefDate === targetDate) passed.push("Passed the getPreferredExpirationDate");
+    else failed.push("Failed getPreferredExpiration date");
+
+    let tradeData : TradeFinderData = tdaHub.getTradeDataFromFullChain(TestData.TDA_FULL_CHAIN);
+    if (tradeData.bidAskSpread === 4) passed.push("Passed full trade data");
+    else failed.push("Failed full data chain");
 }
 
 function testTaskManager(passed : string[], failed: string[]) {

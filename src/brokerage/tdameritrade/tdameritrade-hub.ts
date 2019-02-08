@@ -1,10 +1,123 @@
 import { IDataLoader } from "../data-loader-interface";
 import { Portfolio } from '../../portfolio/portfolio';
-import { getTDAOptionsQuote, isMarketOpen } from "./tda-api";
+import { getTDAOptionsQuote, isMarketOpen, getTDAOptionsChainList, getTDAFullChain } from './tda-api';
 import { JLog } from '../../utils/jlog';
 import { EngineState, EngineStateProperty } from '../../engine/engine-state';
+import { TradeFinderData } from '../../market/trade-finder-data';
+import { HashMap } from '../../utils/util-classes';
 
 export class TDAmeritradeHub implements IDataLoader {
+
+    getTradeFinderData(symbol : string, authenticate : boolean) : TradeFinderData {
+        let beginDate = new Date();
+        //100 days from now
+        beginDate.setTime(beginDate.getTime()  + 100 * 24 * 60 * 60 * 1000)
+        let endDate = new Date();
+        //150 days from now
+        endDate.setTime(endDate.getTime() + 200 * 24 * 60 * 60 * 1000);
+
+        let chainString = getTDAOptionsChainList(symbol, beginDate, endDate, authenticate);
+
+        if (JLog.isDebug()) JLog.debug(chainString);
+
+        let prefExpireDate = this.getPreferredExpirationDate(chainString);
+
+        let fullChainString = getTDAFullChain(symbol, prefExpireDate, authenticate);
+
+
+        return this.getTradeDataFromFullChain(fullChainString);
+        
+        
+    }
+
+    getTradeDataFromFullChain(fullChainString : string) : any {
+        let data = JSON.parse(fullChainString);
+
+        let callExpMap = data.callExpDateMap;
+
+        let aTradeFinderData : TradeFinderData = this.getIdealTradeFinderData(callExpMap);
+
+        let putExpMap = data.putExpDateMap;
+
+        let putTradeFinderData : TradeFinderData = this.getIdealTradeFinderData(putExpMap);
+
+        //We only care about the put or call side with the worst bid/ask spread...to represent the liquidity
+        if (putTradeFinderData.bidAskSpread > aTradeFinderData.bidAskSpread) aTradeFinderData = putTradeFinderData;
+
+        aTradeFinderData.price = Number(data.underlyingPrice);
+        aTradeFinderData.symbol = data.symbol;
+
+
+        return aTradeFinderData;
+    }
+
+    private getIdealTradeFinderData(putOrCallMap : any) {
+
+        let tradeFinderData : TradeFinderData = new TradeFinderData();
+        tradeFinderData.targetDelta = 0;
+
+        for (let expDate in putOrCallMap) {
+        
+            let expObj = putOrCallMap[expDate];
+            for (let strikeStr in expObj) {
+                let strike = expObj[strikeStr];
+                let strikeData = strike["0"]; 
+                let deltaStr = strikeData.delta;  
+                let prettyDelta = Math.round(Math.abs(parseFloat(deltaStr)) * 100);
+                if (prettyDelta <= 10 && prettyDelta > tradeFinderData.targetDelta) {
+                    let bid = parseFloat(strikeData.bid);
+                    let ask = parseFloat(strikeData.ask);
+                    let spread = Math.round((ask - bid) * 100);
+                    let theoreticalVolatility = Number(strikeData.volatility);
+                    let mark = Number(strikeData.mark);
+                    let daysToExpiration = Number(strikeData.daysToExpiration);
+                    tradeFinderData.IVRating = theoreticalVolatility;
+                    tradeFinderData.bestDTE = daysToExpiration;
+                    tradeFinderData.targetDelta = prettyDelta;
+                    tradeFinderData.tenDeltaCredit = Number(mark) * 100;
+                    tradeFinderData.bidAskSpread = spread;
+                    tradeFinderData.callOrPutSample = strikeData.putCall;
+                }
+            }
+        }
+
+        return tradeFinderData;
+
+    }
+
+    getPreferredExpirationDate(chainString : string) : string {
+        let data = JSON.parse(chainString);
+
+        let dateArray = data.callExpDateMap;
+
+        let bestDate : string = null;
+        let expireDateMap : HashMap = new HashMap();
+
+        let bestDTEUnder150 : number = 0;
+        let bestDTEOver150 : number = 300;
+
+        for (let expiration in dateArray) {
+            let objExp = dateArray[expiration];
+            for (let strikeStr in objExp) {
+                let strike = objExp[strikeStr];
+                let strikeData = strike["0"];
+                let dte = Number(strikeData.daysToExpiration);
+                if (dte  <= 150 && dte > bestDTEUnder150) {
+                    bestDTEUnder150 = dte;
+                }
+                else if (dte > 150 && dte < bestDTEOver150) {
+                    bestDTEOver150 = dte;
+                }
+
+                expireDateMap.put(`${dte}`,expiration.substring(0,10));
+
+            }
+        }
+        
+        if (bestDTEUnder150 != 0) bestDate = expireDateMap.get(`${bestDTEUnder150}`);
+        else if (bestDTEOver150 != 300) bestDate = expireDateMap.get(`${bestDTEOver150}`);
+        return bestDate;
+    }
 
     loadCSVData(portfolio: Portfolio) {
 

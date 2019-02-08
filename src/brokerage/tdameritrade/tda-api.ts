@@ -30,6 +30,64 @@ export function getTDAOptionsQuote(symbol: string, CALLorPUT: string, strike: st
   return responseString;
 }
 
+export function getTDAFullChain(symbol: string, expireDate: string, authenticate : boolean) {
+  var tdaService = getTDAService();
+  let tdaClientId = EngineConfig.instance().getConfig(EngineConfigProperty.TDAmeritradeAPIClientId);
+
+  let exDate = expireDate;
+
+
+  var response = null;
+  if (authenticate === false || !tdaService.hasAccess()) {
+    if (JLog.debug) JLog.debug("Getting options chain list for")
+    response = UrlFetchApp.fetch("https://api.tdameritrade.com/v1/marketdata/chains?apikey=" + tdaClientId + "&symbol=" + symbol + "&range=OTM&&fromDate=" + exDate + "&toDate=" + exDate);
+  }
+  else {
+    response = UrlFetchApp.fetch("https://api.tdameritrade.com/v1/marketdata/chains?apikey=" + tdaClientId + "&symbol=" + symbol + "&range=OTM&fromDate=" + exDate + "&toDate=" + exDate, {
+      headers: {
+        Authorization: 'Bearer ' + tdaService.getAccessToken()
+      }
+    });
+
+  }
+
+  //End of handling the crazy tda request
+
+  var responseString = response.getContentText();
+
+  return responseString;
+
+}
+
+export function getTDAOptionsChainList(symbol: string, beginDate: Date, endDate: Date, authenticate : boolean) {
+  var tdaService = getTDAService();
+  let tdaClientId = EngineConfig.instance().getConfig(EngineConfigProperty.TDAmeritradeAPIClientId);
+
+  let bDate = `${beginDate.toISOString().substring(0,10)}`;
+  let eDate = `${endDate.toISOString().substring(0,10)}`;
+
+  var response = null;
+  if (authenticate === false || !tdaService.hasAccess()) {
+    if (JLog.debug) JLog.debug("Getting options chain list for")
+    response = UrlFetchApp.fetch("https://api.tdameritrade.com/v1/marketdata/chains?apikey=" + tdaClientId + "&symbol=" + symbol + "&strikeCount=1&range=OTM&contractType=CALL&fromDate=" + bDate + "&toDate=" + eDate);
+  }
+  else {
+    response = UrlFetchApp.fetch("https://api.tdameritrade.com/v1/marketdata/chains?apikey=" + tdaClientId + "&symbol=" + symbol + "&strikeCount=1&range=OTM&contractType=CALL&fromDate=" + bDate + "&toDate=" + eDate, {
+      headers: {
+        Authorization: 'Bearer ' + tdaService.getAccessToken()
+      }
+    });
+
+  }
+
+  //End of handling the crazy tda request
+
+  var responseString = response.getContentText();
+
+  return responseString;
+
+}
+
 export function isMarketOpen() {
   //Handle getting the data based on whether we have a login token or not
   var tdaService = getTDAService();

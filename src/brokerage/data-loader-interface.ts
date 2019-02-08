@@ -8,4 +8,5 @@ export interface IDataLoader {
 
     loadCSVData(portfolio:Portfolio);
     loadAPIQuoteData(portfolio:Portfolio);
+    
 }

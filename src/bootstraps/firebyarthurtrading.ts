@@ -9,12 +9,16 @@ import { TaskManager } from '../tasks/task-manager';
 import { EngineStateSheet } from '../sheets/engine-state-sheet';
 import { EngineState, DataChangedType, EngineStateProperty } from '../engine/engine-state';
 import { EngineConfigSheet } from '../sheets/engine-config-sheet';
+import { TradeFinderSheet } from '../sheets/trade-finder-sheet';
 import { EngineConfig, EngineConfigProperty } from '../engine/engine-config';
 import { TradeAlert } from '../alerts/trade-alert';
 import { NotificationSender } from '../alerts/notification-sender';
 import { JLog, JLogLevel } from '../utils/jlog';
 import { TotalsSheet } from '../sheets/totals-sheet';
 import { tdaLogin, authCallback, testTDAmeritrade } from '../brokerage/tdameritrade/tda-api';
+import { TDAmeritradeHub } from '../brokerage/tdameritrade/tdameritrade-hub';
+import { TradeFinderData } from '../market/trade-finder-data';
+import { OptionsPosition } from '../portfolio/optionsposition';
 
 export function FBATEOnOpen() {
     var ui = SpreadsheetApp.getUi();
@@ -99,6 +103,42 @@ export function FBATERun() {
 
 }
 
+export function FBATERunTradeFinder() {
+    let engineConfigSheet : EngineConfigSheet = new EngineConfigSheet();
+    let engineConfig : EngineConfig = EngineConfig.instance();
+    engineConfigSheet.read(engineConfig);
+
+    Portfolio.setInstantiateLoadFunction((portfolio) => {
+        let openSheet: OpenPositionsSheet = new OpenPositionsSheet();
+        openSheet.read(portfolio);
+    });
+
+
+    let tradeFinderSheet : TradeFinderSheet = new TradeFinderSheet();
+    let tfSymbols : string[] = tradeFinderSheet.readSymbols();
+    let tickerHash : HashMap = new HashMap();
+    let tdHub : TDAmeritradeHub = new TDAmeritradeHub();
+    for (let symbol of tfSymbols) {
+        try {
+            let tradeFinderData : TradeFinderData = tdHub.getTradeFinderData(symbol,true);
+            let pos : OptionsPosition = Portfolio.instance().getPosition(symbol);
+            if (pos != null) {
+                tradeFinderData.positionHeld = true;
+            }
+            else {
+                tradeFinderData.positionHeld = false;
+            }
+            tickerHash.put(symbol,tradeFinderData);
+        }
+        catch (e) {
+            JLog.error(`Failed to get tradefinder data for symbol ${symbol}: ${e}`);
+        }
+  
+    }
+
+    tradeFinderSheet.write(tickerHash);
+}
+
 
 export function runCIProcess() {
     let testResults : HashMap = googleSheetsTestSuite();
@@ -147,6 +187,15 @@ export function tdAmeritradeTest() {
     let engineConfig : EngineConfig = EngineConfig.instance();
     engineConfigSheet.read(engineConfig);
     testTDAmeritrade();
+}
+
+export function testTDAGetTradeFinderData() {
+       //Temporary testing out of getting the option chain
+       let engineConfigSheet : EngineConfigSheet = new EngineConfigSheet();
+       let engineConfig : EngineConfig = EngineConfig.instance();
+       engineConfigSheet.read(engineConfig);
+       let tdameritradeHub = new TDAmeritradeHub();
+       tdameritradeHub.getTradeFinderData("SPY", true);
 }
 
 export function tdaCallback(request) {
