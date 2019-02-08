@@ -93,6 +93,14 @@ export class TradeFinderSheet {
                 sheet.getRange(rowIndex, TradeFinderColumn.PositionHeld).setValue("FALSE");
             }
 
+            // Highlight good trade opportunities
+            if (wTradeFinderData.bidAskSpread <= 7 && wTradeFinderData.positionHeld == false && wTradeFinderData.price >= 20) {
+                sheet.getRange(rowIndex,TradeFinderColumn.Symbol,1,10).setBackgroundRGB(152,251,152);
+            }
+            else {
+                sheet.getRange(rowIndex,TradeFinderColumn.Symbol,1,10).setBackground(null);
+            }
+
          
         }
     }

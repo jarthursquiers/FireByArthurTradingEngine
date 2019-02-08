@@ -25,6 +25,7 @@ export function FBATEOnOpen() {
     ui.createMenu('Fire By Arthur Trading Engine')
       .addItem('Run','FBATERun')
       .addItem('Load CSV','FBATELoadCSVData')
+      .addItem('Run Trade Finder','FBATERunTradeFinder')
       .addToUi();
 }
 
