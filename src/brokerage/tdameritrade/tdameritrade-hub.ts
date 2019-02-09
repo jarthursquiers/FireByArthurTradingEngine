@@ -71,7 +71,7 @@ export class TDAmeritradeHub implements IDataLoader {
                     let theoreticalVolatility = Number(strikeData.volatility);
                     let mark = Number(strikeData.mark);
                     let daysToExpiration = Number(strikeData.daysToExpiration);
-                    tradeFinderData.IVRating = theoreticalVolatility;
+                    tradeFinderData.currentIV = theoreticalVolatility;
                     tradeFinderData.bestDTE = daysToExpiration;
                     tradeFinderData.targetDelta = prettyDelta;
                     tradeFinderData.tenDeltaCredit = Number(mark) * 100;

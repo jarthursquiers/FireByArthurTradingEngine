@@ -6,6 +6,6 @@ export class TradeFinderData {
     tenDeltaCredit : number;
     positionHeld : boolean;
     symbol : string;
-    IVRating : number;
+    currentIV : number;
     callOrPutSample : string;
 }

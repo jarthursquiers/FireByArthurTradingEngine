@@ -85,7 +85,9 @@ export class TradeFinderSheet {
             sheet.getRange(rowIndex, TradeFinderColumn.BidAskSpread).setValue(wTradeFinderData.bidAskSpread);
             sheet.getRange(rowIndex, TradeFinderColumn.TenDeltaCredit).setValue(wTradeFinderData.tenDeltaCredit);
             sheet.getRange(rowIndex, TradeFinderColumn.Price).setValue(wTradeFinderData.price);
-            sheet.getRange(rowIndex, TradeFinderColumn.IVRating).setValue(wTradeFinderData.IVRating);
+            sheet.getRange(rowIndex, TradeFinderColumn.IVRating).setValue(wTradeFinderData.currentIV);
+            sheet.getRange(rowIndex, TradeFinderColumn.CurrentIV).setValue(wTradeFinderData.currentIV);
+            sheet.getRange(rowIndex, TradeFinderColumn.IVRating).setFormula(`=H${rowIndex}/I${rowIndex}`)
             if (wTradeFinderData.positionHeld) {
                 sheet.getRange(rowIndex, TradeFinderColumn.PositionHeld).setValue("TRUE");
             }
@@ -93,12 +95,39 @@ export class TradeFinderSheet {
                 sheet.getRange(rowIndex, TradeFinderColumn.PositionHeld).setValue("FALSE");
             }
 
-            // Highlight good trade opportunities
-            if (wTradeFinderData.bidAskSpread <= 7 && wTradeFinderData.positionHeld == false && wTradeFinderData.price >= 20) {
-                sheet.getRange(rowIndex,TradeFinderColumn.Symbol,1,10).setBackgroundRGB(152,251,152);
+            let now = new Date();
+
+            //Determine if we should update average IV
+            let dateLastIVSample = row[TradeFinderColumn.DateLastIVSample -1];
+            if (dateLastIVSample == null || dateLastIVSample === "") {
+                //write first sample
+                sheet.getRange(rowIndex, TradeFinderColumn.DateLastIVSample).setValue(now.toISOString().substring(0, 10));
+                sheet.getRange(rowIndex, TradeFinderColumn.AverageIV).setValue(wTradeFinderData.currentIV);
+                sheet.getRange(rowIndex, TradeFinderColumn.IVSamplesize).setValue(1);
             }
             else {
-                sheet.getRange(rowIndex,TradeFinderColumn.Symbol,1,10).setBackground(null);
+                let dateLastIV : Date = new Date(dateLastIVSample);
+                let oneDayAfter : Date = new Date(dateLastIV.getTime() + 1 * 24 * 60 * 60 * 1000);
+                
+                if (now.getTime() > oneDayAfter.getTime()) {
+                //Add a new sample
+                    let sampleSize = Number(row[TradeFinderColumn.IVSamplesize-1]);
+                    let average = Number(row[TradeFinderColumn.AverageIV-1]);
+                    let newAverage = ((average * sampleSize) + wTradeFinderData.currentIV) / (sampleSize + 1);
+                    sheet.getRange(rowIndex, TradeFinderColumn.DateLastIVSample).setValue(now.toISOString().substring(0, 10));
+                    sheet.getRange(rowIndex, TradeFinderColumn.AverageIV).setValue(newAverage);
+                    sheet.getRange(rowIndex, TradeFinderColumn.IVSamplesize).setValue(sampleSize + 1); 
+
+                }
+            }
+
+
+            // Highlight good trade opportunities
+            if (wTradeFinderData.bidAskSpread <= 7 && wTradeFinderData.positionHeld == false && wTradeFinderData.price >= 20) {
+                sheet.getRange(rowIndex,TradeFinderColumn.Symbol,1,12).setBackgroundRGB(152,251,152);
+            }
+            else {
+                sheet.getRange(rowIndex,TradeFinderColumn.Symbol,1,12).setBackground(null);
             }
 
          
@@ -137,6 +166,11 @@ export class TradeFinderSheet {
         sheet.getRange(1, TradeFinderColumn.BidAskSpread).setValue("Bid Ask Spread");
         sheet.getRange(1, TradeFinderColumn.Price).setValue("Price");
         sheet.getRange(1, TradeFinderColumn.TenDeltaCredit).setValue("Ten Delta Credit");
+        sheet.getRange(1, TradeFinderColumn.CurrentIV).setValue("Current IV");
+        sheet.getRange(1, TradeFinderColumn.AverageIV).setValue("Average IV");
+        sheet.getRange(1, TradeFinderColumn.IVSamplesize).setValue("IV Sample Size");
+        sheet.getRange(1, TradeFinderColumn.DateLastIVSample).setValue("Date Last IV Sample");
+
     }
 
 }
@@ -148,5 +182,9 @@ export enum TradeFinderColumn {
     BestDTE = 4,
     BidAskSpread = 5,
     Price = 6,
-    TenDeltaCredit = 7  
+    TenDeltaCredit = 7,
+    CurrentIV = 8,
+    AverageIV = 9,
+    IVSamplesize = 10,
+    DateLastIVSample = 11 
 }
