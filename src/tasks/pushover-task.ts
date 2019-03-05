@@ -4,6 +4,7 @@ import { EngineConfig } from '../engine/engine-config';
 import { sendPushoverFull } from '../utils/pushover-api';
 import { Portfolio } from '../portfolio/portfolio';
 import { JLog } from '../utils/jlog';
+import { TotalsSheet } from '../sheets/totals-sheet';
 
 export class PushoverTask implements ITask {
     private frequency: number = 0;
@@ -62,12 +63,23 @@ export class PushoverTask implements ITask {
         let maintext = `OPL: ${Portfolio.instance().getOpenProfitAndLoss()}`;
         let hplPos = Portfolio.instance().getHighestPLPercentPosition();
         let lplPos = Portfolio.instance().getLowestPLPercentPosition();
-        let subtext = `${hplPos.getPositionPLPercent()}${hplPos.symbol}|${lplPos.getPositionPLPercent()}${lplPos.symbol}`;
+        let subtext = `${hplPos.getPositionPLPercent()}:${hplPos.symbol}|${lplPos.getPositionPLPercent()}:${lplPos.symbol}`;
+
+        //Get the percent formula value
+        let percentStr = "10";
+        try {
+            let totalsSheet: TotalsSheet = new TotalsSheet();
+            percentStr = totalsSheet.getPushoverValue() + "";
+        }
+        catch (e) {
+            JLog.error(e);
+        }
+
     
 
         if (JLog.isDebug()) JLog.debug(`sending pushover full-> subtext: ${subtext}, maintext ${maintext}`);
         try {
-            sendPushoverFull("Portfolio",subtext, "10", maintext);
+            sendPushoverFull("Portfolio",subtext, percentStr, maintext);
             engineState.setState(EngineStateProperty.PushoverSentDate, new Date());
         }
         catch (e) {

@@ -1,6 +1,7 @@
 import { JLog } from '../../utils/jlog';
 import { EngineConfig, EngineConfigProperty } from '../../engine/engine-config';
 import { EngineState, EngineStateProperty } from '../../engine/engine-state';
+import { EngineConfigSheet } from '../../sheets/engine-config-sheet';
 
 
 
@@ -239,6 +240,9 @@ function getTDAService() {
 }
 
 export function authCallback(request) {
+  let engineConfigSheet : EngineConfigSheet = new EngineConfigSheet();
+  let engineConfig : EngineConfig = EngineConfig.instance();
+  engineConfigSheet.read(engineConfig);
   var tdaService = getTDAService();
   var isAuthorized = tdaService.handleCallback(request);
   Logger.log(request);
@@ -657,12 +661,13 @@ class OAuth2 {
       .withTimeout(3600)
       .createToken();
     var params = {
-      client_id: this.clientId_,
+      client_id: this.clientId_ + '@AMER.OAUTHAP',
       response_type: 'code',
       redirect_uri: redirectUri,
       state: state
     };
     params = this.extend_(params, this.params_);
+    params['client_id'] = this.clientId_ + '@AMER.OAUTHAP';//override this thing with @AMER.OAUTHAP
     return this.buildUrl_(this.authorizationBaseUrl_, params);
   };
 
@@ -707,12 +712,17 @@ class OAuth2 {
     if (this.tokenPayloadHandler_) {
       tokenPayload = this.tokenPayloadHandler_(tokenPayload);
     }
+
+    Logger.log("GetToken on Callback is:"+this.tokenUrl_);
+    Logger.log("tokenPayload is: "+tokenPayload);
+    Logger.log("GetTokenHeaders are: "+headers);
     var response = UrlFetchApp.fetch(this.tokenUrl_, {
       method: 'post',
       headers: headers,
       payload: tokenPayload,
       muteHttpExceptions: true
     });
+    Logger.log("Response is: "+response);
     var token = this.getTokenFromResponse_(response);
     Logger.log("Response from handleCallback call: " + response);
     Logger.log(`Saving Token: ${token} as given by response`);

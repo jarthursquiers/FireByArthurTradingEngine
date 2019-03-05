@@ -164,6 +164,19 @@ export function runCIProcess() {
 }
 
 export function FBATELoadCSVData() {
+
+    let engineConfigSheet : EngineConfigSheet = new EngineConfigSheet();
+    let engineConfig : EngineConfig = EngineConfig.instance();
+    engineConfigSheet.read(engineConfig);
+    
+    let engineStateSheet : EngineStateSheet = new EngineStateSheet();
+    let engineState : EngineState = EngineState.instance();
+    engineStateSheet.read(engineState);
+    EngineState.setPersistStateFunction((engineState) => {
+        engineStateSheet.write(engineState);
+    });
+    engineState.setDataChangedType(DataChangedType.NotChanged);
+
     let tOpenSheet: OpenPositionsSheet = new OpenPositionsSheet();
     let portfolio = Portfolio.instance();
     tOpenSheet.read(portfolio);
@@ -171,6 +184,8 @@ export function FBATELoadCSVData() {
     dataLoader.loadCSVData(portfolio);
     Logger.log("Loaded CSV data into portfolio");
     tOpenSheet.write(portfolio);
+
+    engineState.persist();
 }
 
 export function tdAmeritradeLogin() {

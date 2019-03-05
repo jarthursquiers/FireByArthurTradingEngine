@@ -77,7 +77,28 @@ export class TotalsSheet {
         sheet.getRange(1, 1).setValue("OPEN POSITION STATS");
     }
 
+
+    getPushoverValue() : number {
+        let value = 10;
+
+        let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.sheetName);
+
+        if (sheet == null) {
+            if (JLog.isDebug()) JLog.debug("TotalsSheet.write(): Sheet didn't exist, so creating a new one.")
+            sheet = this.createNewSheet();
+        }
+
+        let valStr = sheet.getRange(12,2).getValue();
+        if (valStr != null) value = Number(valStr);
+
+        if (value > 100) value = 100;
+    
+        return value;
+    }
+    
+
 }
+
 
 export enum TotalsColumn {
 
