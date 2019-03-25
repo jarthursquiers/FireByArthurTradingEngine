@@ -54,6 +54,7 @@ export class EngineStateSheet {
                 sheet.deleteRow(i);
                 //go up one row, since we deleted
                 i--;
+                rowCount--;
             }
         }
 

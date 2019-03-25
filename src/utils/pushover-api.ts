@@ -3,6 +3,7 @@ import { EngineConfig, EngineConfigProperty } from '../engine/engine-config';
 //Display for values val|val|val|val (val4 has to be a number)
 export function sendPushoverFull(title, subtext, percent, maintext) {
 
+
   var formData = {
     'token': EngineConfig.instance().getConfig(EngineConfigProperty.PushoverAppKey),
     'user': EngineConfig.instance().getConfig(EngineConfigProperty.PushoverUserKey),

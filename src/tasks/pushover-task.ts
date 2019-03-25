@@ -69,7 +69,8 @@ export class PushoverTask implements ITask {
         let percentStr = "10";
         try {
             let totalsSheet: TotalsSheet = new TotalsSheet();
-            percentStr = totalsSheet.getPushoverValue() + "";
+            if (totalsSheet.getPushoverValue() < 0) percentStr = "0";
+            else percentStr = totalsSheet.getPushoverValue() + "";
         }
         catch (e) {
             JLog.error(e);
