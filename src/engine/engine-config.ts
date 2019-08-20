@@ -99,6 +99,9 @@ export class EngineConfig {
             case EngineConfigProperty[EngineConfigProperty.WatchFaceUpdateFrequency]:
                 value = "0";
                 break;
+            case EngineConfigProperty[EngineConfigProperty.WingmanAPIFrequency]:
+                value = "0";
+                break;
             case EngineConfigProperty[EngineConfigProperty.TDAmeritradeAPIClientId]:
                 value = "Your.TDA.developer.ClientId";
                 break;
@@ -123,6 +126,12 @@ export class EngineConfig {
             case EngineConfigProperty[EngineConfigProperty.PushoverUserKey]:
                 value = "Your.Pushover.UserKey";
                 break;
+            case EngineConfigProperty[EngineConfigProperty.WingmanAPIKey]:
+                value = "Your.WingmanAPI.Key";
+                break;
+            case EngineConfigProperty[EngineConfigProperty.WingmanAPIToken]:
+                value = "Your.WingmanAPI.Token";
+                break;
             case EngineConfigProperty[EngineConfigProperty.StrikeBreachAlertEnabled]:
                 value = "0";
                 break;
@@ -134,6 +143,9 @@ export class EngineConfig {
                 break;
             case EngineConfigProperty[EngineConfigProperty.JArthurRulesEnabled]:
                 value = "0";
+                break;
+            case EngineConfigProperty[EngineConfigProperty.TradeFinderSampleSize]:
+                value = "60";
                 break;
         }
 
@@ -170,5 +182,9 @@ export enum EngineConfigProperty {
     StrikeBreachAlertEnabled,
     DailyReturnMetAlertEnabled,
     PortfolioName,
-    JArthurRulesEnabled
+    JArthurRulesEnabled,
+    TradeFinderSampleSize,
+    WingmanAPIFrequency,
+    WingmanAPIKey,
+    WingmanAPIToken
 }

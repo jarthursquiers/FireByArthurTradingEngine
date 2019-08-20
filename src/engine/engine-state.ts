@@ -85,5 +85,6 @@ export enum EngineStateProperty {
     MarketOpen,
     QuotesDelayed,
     DataUpdatedDate,
-    PushoverSentDate
+    PushoverSentDate,
+    WingmanTaskLastRan
 }

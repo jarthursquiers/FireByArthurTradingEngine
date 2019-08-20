@@ -20,6 +20,7 @@ import { JLog, JLogLevel } from '../utils/jlog';
 import { TDAmeritradeHub } from '../brokerage/tdameritrade/tdameritrade-hub';
 import { TestData } from '../brokerage/testing/test-data';
 import { TradeFinderData } from '../market/trade-finder-data';
+import { WingmanHub } from "../brokerage/wingman/wingman-hub";
 
 
 
@@ -171,6 +172,7 @@ function runStandaloneTests(passed: string[], failed: string[]) {
     testAlertsSystem(passed, failed);
     testTaskManager(passed, failed);
     testTradeFinder(passed, failed);
+    testWingmanPortfolioUpdate(passed, failed);
 
 }
 
@@ -184,6 +186,25 @@ function testTradeFinder(passed : string[], failed: string[]) {
     let tradeData : TradeFinderData = tdaHub.getTradeDataFromFullChain(TestData.TDA_FULL_CHAIN);
     if (tradeData.bidAskSpread === 4) passed.push("Passed full trade data");
     else failed.push("Failed full data chain");
+}
+
+function testWingmanPortfolioUpdate(passed: string[], failed: string[]) {
+    let wingmanHub = new WingmanHub();
+
+    Portfolio.clean();
+    Portfolio.setInstantiateLoadFunction((portfolio) => {
+        wingmanHub.loadOpenPositionsFromJSON(TestData.WINGMANTRACKER_TEST_OPEN_POSITIONS_JSON,portfolio);
+    });
+    let tPortfolio = Portfolio.instance();
+
+    let aPosition = tPortfolio.getPosition("TLT");
+    if (aPosition.getQuantity() === -1) {
+        passed.push("Got correct quantity for TLT");
+    }
+    else {
+        failed.push(`Quantity for TLT is wrong ${aPosition.getQuantity()}`);
+    }
+
 }
 
 function testTaskManager(passed : string[], failed: string[]) {

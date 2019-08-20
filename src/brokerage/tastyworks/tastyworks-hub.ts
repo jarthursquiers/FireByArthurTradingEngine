@@ -42,6 +42,8 @@ export class TastyworksHub implements IDataLoader {
             
             let typeArray = dataArray[i][headerArray.indexOf("Symbol")].split(' ');
             wOption.symbol = typeArray[0];
+         
+
             let tmpType = typeArray[typeArray.length-1];
             let expDate = "20" + tmpType.toString().substring(0,2) + "-" + tmpType.toString().substring(2,4)+ "-" + tmpType.toString().substring(4,6);
             if (JLog.isDebug()) JLog.debug(`Expire date of option was loaded as ${expDate} for ${wOption.symbol}`);

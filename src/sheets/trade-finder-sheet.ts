@@ -39,7 +39,21 @@ export class TradeFinderSheet {
         return symbols;
     }
 
-    write(tradeFinderDataMap: HashMap) {
+    sort() {
+        let SORT_DATA_RANGE = "A2:L50";
+        let SORT_ORDER = [
+            {column: 3, ascending: false}  // 3 = column number, sorting by descending order
+
+         ];
+
+         var ss = SpreadsheetApp.getActiveSpreadsheet();
+         let sheet = ss.getSheetByName(this.sheetName);
+         var range = sheet.getRange(SORT_DATA_RANGE);
+         range.sort(SORT_ORDER);
+         ss.toast('Sorted on IV Rating.');
+    }
+
+    write(tradeFinderDataMap: HashMap, maxSampleSize : number) {
         if (JLog.isDebug()) JLog.debug("Running OpenPositionSheet.write()");
         let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.sheetName);
         if (sheet == null) {
@@ -112,6 +126,10 @@ export class TradeFinderSheet {
                 if (now.getTime() > oneDayAfter.getTime()) {
                 //Add a new sample
                     let sampleSize = Number(row[TradeFinderColumn.IVSamplesize-1]);
+                    if (sampleSize >= maxSampleSize) { 
+                        sampleSize = maxSampleSize -1;
+                    }
+                    
                     let average = Number(row[TradeFinderColumn.AverageIV-1]);
                     let newAverage = ((average * sampleSize) + wTradeFinderData.currentIV) / (sampleSize + 1);
                     sheet.getRange(rowIndex, TradeFinderColumn.DateLastIVSample).setValue(now.toISOString().substring(0, 10));

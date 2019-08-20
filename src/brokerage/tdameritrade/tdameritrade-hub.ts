@@ -16,6 +16,8 @@ export class TDAmeritradeHub implements IDataLoader {
         //150 days from now
         endDate.setTime(endDate.getTime() + 200 * 24 * 60 * 60 * 1000);
 
+        if (symbol.indexOf('SPX') !== -1 ) symbol = '$SPX.X';
+
         let chainString = getTDAOptionsChainList(symbol, beginDate, endDate, authenticate);
 
         if (JLog.isDebug()) JLog.debug(chainString);
@@ -136,7 +138,9 @@ export class TDAmeritradeHub implements IDataLoader {
                 if (JLog.isDebug()) JLog.debug(`TDAmeritradeHub.loadAPIQuoteData(): calling getTDAOptionsQuote(${option.symbol},${option.callOrPut},${option.strikePrice},${option.expirationDate})`);
                 let quoteStr = "";
                 try {
-                    quoteStr = getTDAOptionsQuote(option.symbol, option.callOrPut.toUpperCase(), `${option.strikePrice}`, option.expirationDate);
+                    let wSymbol = option.symbol;
+                    if (wSymbol.indexOf('SPX') !== -1 ) wSymbol = '$SPX.X';
+                    quoteStr = getTDAOptionsQuote(wSymbol, option.callOrPut.toUpperCase(), `${option.strikePrice}`, option.expirationDate);
                     if (JLog.isDebug()) JLog.debug(`TDAmeritradeHub.loadAPIQuoteData(): The quote returned from API is: ${quoteStr}`);
                   
                 } catch (e) {

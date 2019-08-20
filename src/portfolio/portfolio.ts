@@ -17,7 +17,14 @@ export class Portfolio {
     }
 
     static instance() : Portfolio {
-        return Portfolio._instance || (Portfolio._instance = new Portfolio());
+        if (Portfolio._instance != null) return Portfolio._instance;
+        else {
+            Portfolio._instance = new Portfolio();
+            if (Portfolio._instantiateLoadFunction != null) {
+                Portfolio._instantiateLoadFunction(Portfolio._instance);
+            }
+            return Portfolio._instance;
+        }
     }
 
 

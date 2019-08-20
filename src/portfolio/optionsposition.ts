@@ -21,6 +21,14 @@ export class OptionsPosition {
 
     adjustments: number[];
 
+    getClass() : string {
+        return "parent";
+    }
+
+    getCurrentBasis() : number {
+        return 0;
+    }
+
     addOption(option: Option) {
         this.options.push(option);
 

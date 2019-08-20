@@ -214,7 +214,12 @@ export class OpenPositionsSheet {
                     sheet.getRange(lastRow, OpenPositionsColumn.Status).setValue("Open");
                     sheet.getRange(lastRow, OpenPositionsColumn.DTE).setValue(position.getDTE());
                     sheet.getRange(lastRow, OpenPositionsColumn.OriginalCredit).setValue(position.originalCredit);
-                    sheet.getRange(lastRow, OpenPositionsColumn.CostBasis).setFormula("=D" + lastRow + "+J" + lastRow + "+K" + lastRow + "+L" + lastRow + "+M" + lastRow + "+N" + lastRow);
+                    if (position.getClass() === "parent") {
+                        sheet.getRange(lastRow, OpenPositionsColumn.CostBasis).setFormula("=D" + lastRow + "+J" + lastRow + "+K" + lastRow + "+L" + lastRow + "+M" + lastRow + "+N" + lastRow);
+                    }
+                    else {
+                        sheet.getRange(lastRow, OpenPositionsColumn.CostBasis).setValue(position.getCurrentBasis());
+                    }
                     sheet.getRange(lastRow, OpenPositionsColumn.NetLiq).setFontWeight("bold").setValue(position.getOpenNetLiq());
                     sheet.getRange(lastRow, OpenPositionsColumn.ProfitLoss).setFormula("=E" + lastRow + "+F" + lastRow);
                     sheet.getRange(lastRow, OpenPositionsColumn.ProfitLossPercent).setFontWeight("bold").setNumberFormat("#.##%");

@@ -5,6 +5,7 @@ import { EngineConfig, EngineConfigProperty } from '../engine/engine-config';
 import { JLog } from '../utils/jlog';
 import { LoadQuotesTask } from './load-quotes-task';
 import { PushoverTask } from './pushover-task';
+import { LoadWingmanTask } from './load-wingman-task';
 
 
 export class TaskManager {
@@ -52,6 +53,16 @@ export class TaskManager {
         this.tasks.push(pushoverTask);
 
         if (JLog.isDebug()) JLog.debug("TaskManager.loadTasks(): End");
+
+        //Load Wingman TAsk
+        let wingmanTask : LoadWingmanTask = new LoadWingmanTask();
+        let wingmanTaskFrequency : number = Number(engineConfig.getConfig(EngineConfigProperty.WingmanAPIFrequency));
+        wingmanTask.setFrequency(wingmanTaskFrequency);
+        let wingmanLastRanStr : string = engineState.getState(EngineStateProperty.WingmanTaskLastRan);
+        if (wingmanLastRanStr !== "") {
+            wingmanTask.setLastRunDate(new Date(wingmanLastRanStr));
+        }
+        this.tasks.push(wingmanTask);
     }
 
     addTask(task : ITask) {

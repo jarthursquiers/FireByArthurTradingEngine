@@ -137,7 +137,10 @@ export function FBATERunTradeFinder() {
   
     }
 
-    tradeFinderSheet.write(tickerHash);
+    let maxSampleSize : number = Number(EngineConfig.instance().getConfig(EngineConfigProperty.TradeFinderSampleSize));
+    tradeFinderSheet.write(tickerHash, maxSampleSize);
+
+    engineConfigSheet.write(engineConfig);
 }
 
 
