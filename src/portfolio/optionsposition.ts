@@ -1,11 +1,14 @@
 
 import { Option } from '../market/option';
 import { JLog } from '../utils/jlog';
+import { Stock } from '../market/stock';
 
 export class OptionsPosition {
     static readonly NUMBER_ROLL_SLOTS = 5;
+    theClass: string = "parent";
     symbol: string;
     options: Option[] = [];
+    stock : Stock[] = [];
     rollCredits: number[] = [];
     newPosition : boolean = true;
 
@@ -21,22 +24,42 @@ export class OptionsPosition {
 
     adjustments: number[];
 
-    getClass() : string {
-        return "parent";
-    }
+    //Wingman specific
+    originalBasis : number = 0;
+    currentBasis: number = 0;
+    amount : number = 0;
+    quantity : number = 0;
+
+   
 
     getCurrentBasis() : number {
-        return 0;
+        return this.amount;
     }
+
+
+    getClass() : string {
+        return this.theClass;
+    }
+
+    setAsWingman() {
+        this.theClass = "wingman";
+    }
+
 
     addOption(option: Option) {
         this.options.push(option);
+
+        if (this.theClass === "wingman") return;
 
         if (this.newPosition) {
             if (JLog.isDebug()) JLog.debug(`addOption(option) to new position | cost of ${option.cost}`);
             this.originalCredit += option.cost;
             if (this.originalDTE === 0 || option.dte < this.originalDTE) this.originalDTE = option.dte;
         }
+    }
+
+    addStock (stock : Stock) {
+        this.stock.push(stock);
     }
 
     clearOptions() {
@@ -67,6 +90,8 @@ export class OptionsPosition {
     }
 
     getOpenNetLiq(): number {  //Short options will have negative net liq
+
+
         let wNetLiq: number = 0;
         let netLiqsFound : boolean = false;
         for (let option of this.options) {
@@ -84,6 +109,9 @@ export class OptionsPosition {
     }
 
     getStatus() : string {
+
+        if (this.theClass === "wingman") return "Open";
+
         if (this.getOpenNetLiq() != 0) return "Open"
         else return "Closed";
     }
@@ -104,6 +132,9 @@ export class OptionsPosition {
     }
 
     getQuantity(): number {
+
+        if (this.theClass === "wingman") return this.quantity;
+ 
 
         let wQuantity: number = 0;
         for (let option of this.options) {
