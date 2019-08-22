@@ -86,7 +86,8 @@ export class OptionsPosition {
     getPositionPL(): number {
         //Note, for short options, the open net liq will be negative, which means that takes
         // away from our profit (since we are obligated to buy it back)
-        return this.getTotalPositionCreditReceived() + this.getOpenNetLiq();
+        if (this.theClass === "wingman") return this.amount + this.getOpenNetLiq();
+        else return this.getTotalPositionCreditReceived() + this.getOpenNetLiq();
     }
 
     getOpenNetLiq(): number {  //Short options will have negative net liq
@@ -104,8 +105,28 @@ export class OptionsPosition {
             }
         }
 
+        for (let stock of this.stock) {
+            if (stock.marketPrice != null && !isNaN(stock.marketPrice)) {
+                wNetLiq += stock.marketPrice * stock.shares;
+                netLiqsFound = true;
+            }
+            else {
+                netLiqsFound = false;
+            }
+            
+        }
+
         if (netLiqsFound)  return wNetLiq;
         else return this.readInPositionNetLiq;
+    }
+
+    getTotalShareCount(): number {
+        let totalShares = 0;
+        for (let stock of this.stock) {
+            totalShares += stock.shares;
+        }
+
+        return totalShares;
     }
 
     getStatus() : string {

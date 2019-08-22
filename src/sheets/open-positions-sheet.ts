@@ -5,6 +5,7 @@ import { EngineState, DataChangedType } from '../engine/engine-state';
 import { JLog } from '../utils/jlog';
 import { TradeAlert } from '../alerts/trade-alert';
 import { AlertType } from '../alerts/alert-config';
+import { Stock } from '../market/stock';
 
 
 export class OpenPositionsSheet {
@@ -63,6 +64,14 @@ export class OpenPositionsSheet {
 
             let wDaysInTrade: number = Number(row[OpenPositionsColumn.DaysInTrade -1]);
             wPosition.daysInTrade = wDaysInTrade;
+
+            let shareCount : number = Number(row[OpenPositionsColumn.StockShares-1]);
+            if (!isNaN(shareCount)) {
+                let wStock : Stock = new Stock();
+                wStock.symbol = `${wSymbol}`;
+                wStock.shares = shareCount;
+                wPosition.addStock(wStock);
+            }
 
 
             let contractCodes : string = `${row[OpenPositionsColumn.ContractCodes -1]}`;
@@ -173,6 +182,7 @@ export class OpenPositionsSheet {
                     sheet.getRange(rowIndex, OpenPositionsColumn.DTE).setValue(wPosition.getDTE());
                     sheet.getRange(rowIndex, OpenPositionsColumn.Quantity).setValue(wPosition.getQuantity());
                     sheet.getRange(rowIndex, OpenPositionsColumn.ContractCodes).setValue(wPosition.getContractCodes());
+                    sheet.getRange(rowIndex, OpenPositionsColumn.StockShares).setValue(wPosition.getTotalShareCount());
                     JLog.debug(`Set these values on the Open Sheet:
                                 BiggestDelta: ${wPosition.getBiggestDelta()}
                                 DTE: ${wPosition.getDTE()}
@@ -236,6 +246,7 @@ export class OpenPositionsSheet {
                     sheet.getRange(lastRow, OpenPositionsColumn.DailyProfitReached).setFormula("=AND(Z" + lastRow + " > Y"+lastRow+", H"+lastRow+" > 0.25)");
                     sheet.getRange(lastRow, OpenPositionsColumn.ExpectedDailyProfit).setFormula("=D" + lastRow + " / T"+lastRow);
                     sheet.getRange(lastRow, OpenPositionsColumn.CurrentDailyProfit).setFormula("=G" + lastRow + " / S"+lastRow);
+                    sheet.getRange(lastRow, OpenPositionsColumn.StockShares).setValue(position.getTotalShareCount());
                     
                     JLog.debug(`Inserted the position ${position.symbol} at the end of the OpenPositions spreadsheet`);
                 }
@@ -400,6 +411,7 @@ export class OpenPositionsSheet {
         sheet.getRange(1, OpenPositionsColumn.DailyProfitReached).setValue("DPR");
         sheet.getRange(1, OpenPositionsColumn.ExpectedDailyProfit).setValue("Expected Daily Profit");
         sheet.getRange(1, OpenPositionsColumn.CurrentDailyProfit).setValue("Current Daily Profit");
+        sheet.getRange(1, OpenPositionsColumn.StockShares).setValue("Stock Shares");
     }
 
 }
@@ -430,7 +442,8 @@ export enum OpenPositionsColumn {
     ClosedDate = 23,
     DailyProfitReached = 24,
     ExpectedDailyProfit = 25,
-    CurrentDailyProfit = 26
+    CurrentDailyProfit = 26,
+    StockShares = 27
 }
 
 export enum HighlightType {

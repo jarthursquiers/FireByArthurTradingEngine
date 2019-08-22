@@ -1,6 +1,6 @@
 import { IDataLoader } from "../data-loader-interface";
 import { Portfolio } from '../../portfolio/portfolio';
-import { getTDAOptionsQuote, isMarketOpen, getTDAOptionsChainList, getTDAFullChain } from './tda-api';
+import { getTDAOptionsQuote, isMarketOpen, getTDAOptionsChainList, getTDAFullChain, getTDAStockQuote } from './tda-api';
 import { JLog } from '../../utils/jlog';
 import { EngineState, EngineStateProperty } from '../../engine/engine-state';
 import { TradeFinderData } from '../../market/trade-finder-data';
@@ -8,15 +8,15 @@ import { HashMap } from '../../utils/util-classes';
 
 export class TDAmeritradeHub implements IDataLoader {
 
-    getTradeFinderData(symbol : string, authenticate : boolean) : TradeFinderData {
+    getTradeFinderData(symbol: string, authenticate: boolean): TradeFinderData {
         let beginDate = new Date();
         //100 days from now
-        beginDate.setTime(beginDate.getTime()  + 100 * 24 * 60 * 60 * 1000)
+        beginDate.setTime(beginDate.getTime() + 100 * 24 * 60 * 60 * 1000)
         let endDate = new Date();
         //150 days from now
         endDate.setTime(endDate.getTime() + 200 * 24 * 60 * 60 * 1000);
 
-        if (symbol.indexOf('SPX') !== -1 ) symbol = '$SPX.X';
+        if (symbol.indexOf('SPX') !== -1) symbol = '$SPX.X';
 
         let chainString = getTDAOptionsChainList(symbol, beginDate, endDate, authenticate);
 
@@ -28,20 +28,20 @@ export class TDAmeritradeHub implements IDataLoader {
 
 
         return this.getTradeDataFromFullChain(fullChainString);
-        
-        
+
+
     }
 
-    getTradeDataFromFullChain(fullChainString : string) : any {
+    getTradeDataFromFullChain(fullChainString: string): any {
         let data = JSON.parse(fullChainString);
 
         let callExpMap = data.callExpDateMap;
 
-        let aTradeFinderData : TradeFinderData = this.getIdealTradeFinderData(callExpMap);
+        let aTradeFinderData: TradeFinderData = this.getIdealTradeFinderData(callExpMap);
 
         let putExpMap = data.putExpDateMap;
 
-        let putTradeFinderData : TradeFinderData = this.getIdealTradeFinderData(putExpMap);
+        let putTradeFinderData: TradeFinderData = this.getIdealTradeFinderData(putExpMap);
 
         //We only care about the put or call side with the worst bid/ask spread...to represent the liquidity
         if (putTradeFinderData.bidAskSpread > aTradeFinderData.bidAskSpread) aTradeFinderData = putTradeFinderData;
@@ -53,18 +53,18 @@ export class TDAmeritradeHub implements IDataLoader {
         return aTradeFinderData;
     }
 
-    private getIdealTradeFinderData(putOrCallMap : any) {
+    private getIdealTradeFinderData(putOrCallMap: any) {
 
-        let tradeFinderData : TradeFinderData = new TradeFinderData();
+        let tradeFinderData: TradeFinderData = new TradeFinderData();
         tradeFinderData.targetDelta = 0;
 
         for (let expDate in putOrCallMap) {
-        
+
             let expObj = putOrCallMap[expDate];
             for (let strikeStr in expObj) {
                 let strike = expObj[strikeStr];
-                let strikeData = strike["0"]; 
-                let deltaStr = strikeData.delta;  
+                let strikeData = strike["0"];
+                let deltaStr = strikeData.delta;
                 let prettyDelta = Math.round(Math.abs(parseFloat(deltaStr)) * 100);
                 if (prettyDelta <= 10 && prettyDelta > tradeFinderData.targetDelta) {
                     let bid = parseFloat(strikeData.bid);
@@ -87,16 +87,16 @@ export class TDAmeritradeHub implements IDataLoader {
 
     }
 
-    getPreferredExpirationDate(chainString : string) : string {
+    getPreferredExpirationDate(chainString: string): string {
         let data = JSON.parse(chainString);
 
         let dateArray = data.callExpDateMap;
 
-        let bestDate : string = null;
-        let expireDateMap : HashMap = new HashMap();
+        let bestDate: string = null;
+        let expireDateMap: HashMap = new HashMap();
 
-        let bestDTEUnder150 : number = 0;
-        let bestDTEOver150 : number = 300;
+        let bestDTEUnder150: number = 0;
+        let bestDTEOver150: number = 300;
 
         for (let expiration in dateArray) {
             let objExp = dateArray[expiration];
@@ -104,18 +104,18 @@ export class TDAmeritradeHub implements IDataLoader {
                 let strike = objExp[strikeStr];
                 let strikeData = strike["0"];
                 let dte = Number(strikeData.daysToExpiration);
-                if (dte  <= 150 && dte > bestDTEUnder150) {
+                if (dte <= 150 && dte > bestDTEUnder150) {
                     bestDTEUnder150 = dte;
                 }
                 else if (dte > 150 && dte < bestDTEOver150) {
                     bestDTEOver150 = dte;
                 }
 
-                expireDateMap.put(`${dte}`,expiration.substring(0,10));
+                expireDateMap.put(`${dte}`, expiration.substring(0, 10));
 
             }
         }
-        
+
         if (bestDTEUnder150 != 0) bestDate = expireDateMap.get(`${bestDTEUnder150}`);
         else if (bestDTEOver150 != 300) bestDate = expireDateMap.get(`${bestDTEOver150}`);
         return bestDate;
@@ -139,10 +139,10 @@ export class TDAmeritradeHub implements IDataLoader {
                 let quoteStr = "";
                 try {
                     let wSymbol = option.symbol;
-                    if (wSymbol.indexOf('SPX') !== -1 ) wSymbol = '$SPX.X';
+                    if (wSymbol.indexOf('SPX') !== -1) wSymbol = '$SPX.X';
                     quoteStr = getTDAOptionsQuote(wSymbol, option.callOrPut.toUpperCase(), `${option.strikePrice}`, option.expirationDate);
                     if (JLog.isDebug()) JLog.debug(`TDAmeritradeHub.loadAPIQuoteData(): The quote returned from API is: ${quoteStr}`);
-                  
+
                 } catch (e) {
                     JLog.error(e);
                     return;
@@ -151,10 +151,10 @@ export class TDAmeritradeHub implements IDataLoader {
                 var isDelayed = this.getValueFromJSON(quoteStr, "isDelayed");
                 if (JLog.isDebug()) JLog.debug(`The value of isDelayed from the TDA result is ${isDelayed}`);
                 if (isDelayed == false) {
-                   EngineState.instance().setState(EngineStateProperty.QuotesDelayed,"false");
+                    EngineState.instance().setState(EngineStateProperty.QuotesDelayed, "false");
                 }
                 else {
-                  EngineState.instance().setState(EngineStateProperty.QuotesDelayed,"true");
+                    EngineState.instance().setState(EngineStateProperty.QuotesDelayed, "true");
                 }
 
                 let deltaStr = this.getValueFromJSON(quoteStr, "delta");
@@ -173,13 +173,42 @@ export class TDAmeritradeHub implements IDataLoader {
 
             }
 
+
+
+            //Check if there is stock
+            let stocks = position.stock;
+            for (let stock of stocks) {
+                if (stock.symbol == null || stock.symbol.indexOf("./") > -1) {
+                    if (JLog.isDebug()) JLog.debug(`TDAmeritradeHub.loadAPIQuoteData(): skipping quote call for ${stock.symbol} as TDA does not support futures API calls`);
+                    continue;
+                }
+                if (JLog.isDebug()) JLog.debug(`TDAmeritradeHub.loadAPIQuoteData(): calling getTDAStockQuote(${stock.symbol})`);
+                let quoteStr = "";
+                try {
+                    let wSymbol = stock.symbol;
+                    if (wSymbol.indexOf('SPX') !== -1) wSymbol = '$SPX.X';
+                    quoteStr = getTDAStockQuote(wSymbol);
+                    if (JLog.isDebug()) JLog.debug(`TDAmeritradeHub.loadAPIQuoteData(): The quote returned from API is: ${quoteStr}`);
+
+                } catch (e) {
+                    JLog.error(e);
+                    return;
+                }
+
+
+                let lastPrice = this.getValueFromJSON(quoteStr, "lastPrice");
+                position.underlyingPrice = lastPrice;
+                stock.marketPrice = Number(lastPrice);
+
+            }
+
         }
     }
 
     marketOpen(): boolean {
         try {
-           return isMarketOpen();
-       //   return true;
+            return isMarketOpen();
+            //   return true;
         } catch (e) {
             JLog.error(e);
             return false;

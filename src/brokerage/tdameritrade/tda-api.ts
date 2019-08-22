@@ -3,7 +3,30 @@ import { EngineConfig, EngineConfigProperty } from '../../engine/engine-config';
 import { EngineState, EngineStateProperty } from '../../engine/engine-state';
 import { EngineConfigSheet } from '../../sheets/engine-config-sheet';
 
+export function getTDAStockQuote(symbol: string): string {
+  var tdaService = getTDAService();
+  let tdaClientId = EngineConfig.instance().getConfig(EngineConfigProperty.TDAmeritradeAPIClientId);
+  var response = null;
+  if (!tdaService.hasAccess()) {
+    if (JLog.debug) JLog.debug("Getting quotes for ")
+    response = UrlFetchApp.fetch("https://api.tdameritrade.com/v1/marketdata/"+symbol+"/quotes?apikey=" + tdaClientId );
+  }
+  else {
+    response = UrlFetchApp.fetch("https://api.tdameritrade.com/v1/marketdata/"+symbol+"/quotes?apikey=" + tdaClientId , {
+      headers: {
+        Authorization: 'Bearer ' + tdaService.getAccessToken()
+      }
+    });
 
+  }
+
+  //End of handling the crazy tda request
+
+  var responseString = response.getContentText();
+
+  return responseString;
+
+}
 
 export function getTDAOptionsQuote(symbol: string, CALLorPUT: string, strike: string, expireDate: Date): string {
   var tdaService = getTDAService();
