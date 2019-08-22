@@ -49,7 +49,7 @@ export class WingmanHub {
                     wOption.expirationDate = new Date(leg.expiration_date);
                     wOption.quantity = parseInt(leg.quantity);
                     wOption.cost = parseFloat(leg.original_basis);
-                    wOption.netLiq = wOption.cost * -1;
+                    wOption.netLiq = 0;
                     wOption.symbol = underlying.underlying;
 
                     wOption.strikePrice = parseFloat(leg.strike);
