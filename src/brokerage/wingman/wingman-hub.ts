@@ -14,15 +14,17 @@ export class WingmanHub {
 
         for (let underlying of data) {
             JLog.debug(`underlying: ` + underlying);
-
+            let readInPosition = portfolio.getPosition(underlying.underlying);
             let wingmanPosition: OptionsPosition = new OptionsPosition();
             wingmanPosition.setAsWingman();
+            wingmanPosition.readInPositionNetLiq = readInPosition.readInPositionNetLiq;
             wingmanPosition.originalBasis = parseFloat(underlying.original_basis);
             wingmanPosition.currentBasis = parseFloat(underlying.current_basis);
             wingmanPosition.amount = parseFloat(underlying.amount);
             wingmanPosition.quantity = parseFloat(underlying.quantity);
             wingmanPosition.originalCredit = wingmanPosition.originalBasis * (Math.abs(wingmanPosition.quantity)) * 100;
             wingmanPosition.symbol = underlying.underlying;
+            wingmanPosition.account = underlying.account.name;
             portfolio.setPosition(underlying.underlying, wingmanPosition);
 
 

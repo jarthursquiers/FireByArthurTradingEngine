@@ -29,6 +29,7 @@ export class OptionsPosition {
     currentBasis: number = 0;
     amount : number = 0;
     quantity : number = 0;
+    account : string;
 
    
 
@@ -88,6 +89,25 @@ export class OptionsPosition {
         // away from our profit (since we are obligated to buy it back)
         if (this.theClass === "wingman") return this.amount + this.getOpenNetLiq();
         else return this.getTotalPositionCreditReceived() + this.getOpenNetLiq();
+    }
+
+    getDownsideNotional(): number {
+        let dsNotional: number = 0;
+      
+        for (let option of this.options) {
+            if (option.callOrPut === "Put") {
+                if (option.quantity < 0) {
+                    dsNotional += (option.quantity * -1) * option.strikePrice * 100;
+                }
+            }
+        }
+
+        for (let stock of this.stock) {
+            dsNotional += stock.marketPrice * stock.shares;
+        }
+
+        return dsNotional;
+
     }
 
     getOpenNetLiq(): number {  //Short options will have negative net liq

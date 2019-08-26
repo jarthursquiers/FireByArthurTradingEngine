@@ -73,6 +73,10 @@ export class OpenPositionsSheet {
                 wPosition.addStock(wStock);
             }
 
+            
+            let accountName : string = `${row[OpenPositionsColumn.AccountName -1]}`;
+
+            if (accountName != "") wPosition.account = accountName;
 
             let contractCodes : string = `${row[OpenPositionsColumn.ContractCodes -1]}`;
 
@@ -179,10 +183,16 @@ export class OpenPositionsSheet {
                     //it will just mess up the history.
                     if (JLog.isDebug()) JLog.debug(`OpenPositionsSheet.write(): ${wPosition.symbol} did not return CLOSED.`)
                     sheet.getRange(rowIndex, OpenPositionsColumn.BiggestDelta).setValue(wPosition.getBiggestDelta());
-                    sheet.getRange(rowIndex, OpenPositionsColumn.DTE).setValue(wPosition.getDTE());
+                    if (wPosition.getDTE()) sheet.getRange(rowIndex, OpenPositionsColumn.DTE).setValue(wPosition.getDTE());
                     sheet.getRange(rowIndex, OpenPositionsColumn.Quantity).setValue(wPosition.getQuantity());
                     sheet.getRange(rowIndex, OpenPositionsColumn.ContractCodes).setValue(wPosition.getContractCodes());
                     sheet.getRange(rowIndex, OpenPositionsColumn.StockShares).setValue(wPosition.getTotalShareCount());
+                    sheet.getRange(rowIndex, OpenPositionsColumn.AccountName).setValue(wPosition.account);
+                    if (!isNaN(wPosition.getDownsideNotional())) sheet.getRange(rowIndex, OpenPositionsColumn.DownsideNotionalRisk).setValue(wPosition.getDownsideNotional());
+                    if (wPosition.getClass() !== "parent") {
+                        sheet.getRange(rowIndex, OpenPositionsColumn.CostBasis).setValue(wPosition.getCurrentBasis());
+                        sheet.getRange(rowIndex, OpenPositionsColumn.OriginalCredit).setValue(wPosition.originalCredit);
+                    }
                     JLog.debug(`Set these values on the Open Sheet:
                                 BiggestDelta: ${wPosition.getBiggestDelta()}
                                 DTE: ${wPosition.getDTE()}
@@ -247,6 +257,8 @@ export class OpenPositionsSheet {
                     sheet.getRange(lastRow, OpenPositionsColumn.ExpectedDailyProfit).setFormula("=D" + lastRow + " / T"+lastRow);
                     sheet.getRange(lastRow, OpenPositionsColumn.CurrentDailyProfit).setFormula("=G" + lastRow + " / S"+lastRow);
                     sheet.getRange(lastRow, OpenPositionsColumn.StockShares).setValue(position.getTotalShareCount());
+                    sheet.getRange(lastRow, OpenPositionsColumn.AccountName).setValue(position.account);
+                    sheet.getRange(lastRow, OpenPositionsColumn.DownsideNotionalRisk).setValue(position.getDownsideNotional());
                     
                     JLog.debug(`Inserted the position ${position.symbol} at the end of the OpenPositions spreadsheet`);
                 }
@@ -412,6 +424,8 @@ export class OpenPositionsSheet {
         sheet.getRange(1, OpenPositionsColumn.ExpectedDailyProfit).setValue("Expected Daily Profit");
         sheet.getRange(1, OpenPositionsColumn.CurrentDailyProfit).setValue("Current Daily Profit");
         sheet.getRange(1, OpenPositionsColumn.StockShares).setValue("Stock Shares");
+        sheet.getRange(1, OpenPositionsColumn.AccountName).setValue("Account Name");
+        sheet.getRange(1, OpenPositionsColumn.DownsideNotionalRisk).setValue("DS Notional Risk");
     }
 
 }
@@ -443,7 +457,9 @@ export enum OpenPositionsColumn {
     DailyProfitReached = 24,
     ExpectedDailyProfit = 25,
     CurrentDailyProfit = 26,
-    StockShares = 27
+    StockShares = 27,
+    AccountName = 28,
+    DownsideNotionalRisk = 29
 }
 
 export enum HighlightType {
