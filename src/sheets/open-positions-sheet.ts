@@ -288,7 +288,7 @@ export class OpenPositionsSheet {
             cIndex++;
             var tmpStatus = row[OpenPositionsColumn.Status - 1];
             if (JLog.isDebug()) JLog.debug(`OpenPositonsShet.write(): The ${row[OpenPositionsColumn.Symbol - 1]} tmpStatus when looking for closed was ${tmpStatus}`)
-            if (`${tmpStatus}` === "Closed") {
+            if (`${tmpStatus}` === "Closed" || !(portfolio.getPosition(row[OpenPositionsColumn.Symbol -1]))) {
                 // HERE IS THE CODE TO MOVE THIS TO THE CLOSED SHEET.
                 JLog.info(`The position for ${row[OpenPositionsColumn.Symbol - 1]} is Closeed and will be moved`);
                 var targetRange = closedSheet.getRange(closedSheet.getLastRow() + 1, 1);

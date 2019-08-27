@@ -3,12 +3,15 @@ import { JLog } from '../../utils/jlog';
 import { Option } from '../../market/option';
 import { OptionsPosition } from '../../portfolio/optionsposition';
 import { Stock } from '../../market/stock';
+import { HashMap } from '../../utils/util-classes';
 
 
 export class WingmanHub {
 
     loadOpenPositionsFromJSON(jsonString: string, portfolio: Portfolio) {
         let data = JSON.parse(jsonString);
+
+        let activePositions : HashMap = new HashMap();
 
 
 
@@ -17,7 +20,8 @@ export class WingmanHub {
             let readInPosition = portfolio.getPosition(underlying.underlying);
             let wingmanPosition: OptionsPosition = new OptionsPosition();
             wingmanPosition.setAsWingman();
-            wingmanPosition.readInPositionNetLiq = readInPosition.readInPositionNetLiq;
+            if (readInPosition) wingmanPosition.readInPositionNetLiq = readInPosition.readInPositionNetLiq;
+            else wingmanPosition.readInPositionNetLiq = parseFloat(underlying.amount) * -1;
             wingmanPosition.originalBasis = parseFloat(underlying.original_basis);
             wingmanPosition.currentBasis = parseFloat(underlying.current_basis);
             wingmanPosition.amount = parseFloat(underlying.amount);
@@ -26,6 +30,7 @@ export class WingmanHub {
             wingmanPosition.symbol = underlying.underlying;
             wingmanPosition.account = underlying.account.name;
             portfolio.setPosition(underlying.underlying, wingmanPosition);
+           
 
 
             for (let leg of underlying.legs) {
@@ -51,24 +56,40 @@ export class WingmanHub {
                     wOption.expirationDate = new Date(leg.expiration_date);
                     wOption.quantity = parseInt(leg.quantity);
                     wOption.cost = parseFloat(leg.original_basis);
-                    wOption.netLiq = 0;
                     wOption.symbol = underlying.underlying;
 
                     wOption.strikePrice = parseFloat(leg.strike);
 
 
 
-                    if (!legClosed) portfolio.addOption(wOption);
+                    if (!legClosed) {
+                        portfolio.addOption(wOption);
+                        activePositions.put(wingmanPosition.symbol, wingmanPosition);
+                    }
+                        
                 }
                 else {
                     let wStock: Stock = new Stock();
                     wStock.symbol = underlying.underlying;
                     wStock.shares = parseInt(leg.quantity);
-                    if (!legClosed) wingmanPosition.addStock(wStock);
+                    if (!legClosed) {
+                        wingmanPosition.addStock(wStock);
+                        activePositions.put(wingmanPosition.symbol, wingmanPosition);
+                    }
                 }
 
             }
         }
+
+        // Remove any read-in positions that weren't active in Wingman
+        let tmpPositions : OptionsPosition[] = portfolio.getPositions();
+
+        for (let wPos of tmpPositions) {
+            if (!activePositions.get(wPos.symbol)) {
+                portfolio.removePosition(wPos.symbol);
+            }
+        }
     }
+
 
 }
