@@ -174,10 +174,7 @@ export class OpenPositionsSheet {
                     JLog.debug("OptionsPositionsSheet.write(): "+wPosition.symbol+" wPosition.getStatus() returned 'Closed' [getStatus() checks the net liq for 0]");
                     let tmpStatus = sheet.getRange(rowIndex, OpenPositionsColumn.Status);
                     tmpStatus.setValue("Closed");
-                    JLog.debug(`Set the status to Closed. 
-                        We'll now call EngineState.instance().clearSymbol to get rid any 
-                        notification state for the symbol ${wPosition.symbol}`);
-                    EngineState.instance().clearSymbol(wPosition.symbol);
+                   
                 }
                 else { //If we are setting this to closed, there is no need to fill in the rest of the data because
                     //it will just mess up the history.
@@ -291,6 +288,7 @@ export class OpenPositionsSheet {
             if (`${tmpStatus}` === "Closed" || !(portfolio.getPosition(row[OpenPositionsColumn.Symbol -1]))) {
                 // HERE IS THE CODE TO MOVE THIS TO THE CLOSED SHEET.
                 JLog.info(`The position for ${row[OpenPositionsColumn.Symbol - 1]} is Closeed and will be moved`);
+                EngineState.instance().clearSymbol(row[OpenPositionsColumn.Symbol - 1]);
                 var targetRange = closedSheet.getRange(closedSheet.getLastRow() + 1, 1);
                 sheet.getRange(sheet.getRange(cIndex, OpenPositionsColumn.Status).getRow(), 1, 1, sheet.getLastColumn()).moveTo(targetRange);
                 var closedDateRange = closedSheet.getRange(targetRange.getRow(), OpenPositionsColumn.ClosedDate);

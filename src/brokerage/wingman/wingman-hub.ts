@@ -45,6 +45,7 @@ export class WingmanHub {
                     else legType = "Put";
 
                     if (transaction.order_action.indexOf("CLOSE") > -1) legClosed = true;
+                    else legClosed = false;
 
                 }
 

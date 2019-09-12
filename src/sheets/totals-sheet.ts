@@ -95,6 +95,22 @@ export class TotalsSheet {
     
         return value;
     }
+
+    getTotalPL() : number {
+        let value = 0;
+
+        let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.sheetName);
+
+        if (sheet == null) {
+            if (JLog.isDebug()) JLog.debug("TotalsSheet.write(): Sheet didn't exist, so creating a new one.")
+            sheet = this.createNewSheet();
+        }
+
+        let valStr = sheet.getRange(1,5).getValue();
+        if (valStr != null) value = Number(valStr);
+
+        return Math.round(value);
+    }
     
 
 }

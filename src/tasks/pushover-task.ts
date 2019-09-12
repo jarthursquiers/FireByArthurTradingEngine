@@ -40,35 +40,35 @@ export class PushoverTask implements ITask {
         let engineConfig = EngineConfig.instance();
         engineState.setState(EngineStateProperty.PushoverTaskLastRan, new Date());
 
-        let datePushoverSent : Date;
-        let dateDataChanged : Date;
+        let datePushoverSent: Date;
+        let dateDataChanged: Date;
         try {
             dateDataChanged = new Date(engineState.getState(EngineStateProperty.DataUpdatedDate));
-            if (JLog.isDebug()) JLog.debug("Got date data last changed: "+dateDataChanged);
+            if (JLog.isDebug()) JLog.debug("Got date data last changed: " + dateDataChanged);
             datePushoverSent = new Date(engineState.getState(EngineStateProperty.PushoverSentDate));
-            if (JLog.isDebug()) JLog.debug("Got date pushover last sent: "+datePushoverSent);
+            if (JLog.isDebug()) JLog.debug("Got date pushover last sent: " + datePushoverSent);
         }
         catch (e) {
             JLog.error(e);
         }
-        
-    
-        if (dateDataChanged == null || (datePushoverSent != null && datePushoverSent.getTime() > dateDataChanged.getTime()) ) {
+
+
+        if (dateDataChanged == null || (datePushoverSent != null && datePushoverSent.getTime() > dateDataChanged.getTime())) {
             if (JLog.isDebug()) JLog.debug("Data hasn't changed since last pushover sent, so we aren't pushing anything");
             return false;
         }
-        
 
-    
-        let maintext = `OPL: ${Portfolio.instance().getOpenProfitAndLoss()}`;
-        let hplPos = Portfolio.instance().getHighestPLPercentPosition();
-        let lplPos = Portfolio.instance().getLowestPLPercentPosition();
-        let subtext = `${hplPos.getPositionPLPercent()}:${hplPos.symbol}|${lplPos.getPositionPLPercent()}:${lplPos.symbol}`;
 
-        //Get the percent formula value
-        let percentStr = "10";
         try {
             let totalsSheet: TotalsSheet = new TotalsSheet();
+            let maintext = `PL: ${totalsSheet.getTotalPL()}`;
+            let hplPos = Portfolio.instance().getHighestPLPercentPosition();
+            let lplPos = Portfolio.instance().getLowestPLPercentPosition();
+            let subtext = `${hplPos.getPositionPLPercent()}:${hplPos.symbol}|${lplPos.getPositionPLPercent()}:${lplPos.symbol}`;
+
+            //Get the percent formula value
+            let percentStr = "10";
+
             if (totalsSheet.getPushoverValue() < 0) percentStr = "0";
             else percentStr = totalsSheet.getPushoverValue() + "";
         }
@@ -76,11 +76,11 @@ export class PushoverTask implements ITask {
             JLog.error(e);
         }
 
-    
+
 
         if (JLog.isDebug()) JLog.debug(`sending pushover full-> subtext: ${subtext}, maintext ${maintext}`);
         try {
-            sendPushoverFull("Portfolio",subtext, percentStr, maintext);
+            sendPushoverFull("Portfolio", subtext, percentStr, maintext);
             engineState.setState(EngineStateProperty.PushoverSentDate, new Date());
         }
         catch (e) {
@@ -93,8 +93,8 @@ export class PushoverTask implements ITask {
         return taskDidStuff;
     }
 
-       
-        
-  
+
+
+
 
 }
